@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Phineas and Ferb: Character Episode Timeline</title>
+  <link rel="stylesheet" href="css/homeStyle.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>Phineas and Ferb: Character Participation Timeline</h1>
+    <p>This visualization shows who speaks in which episode — across all seasons.</p>
+  </header>
+
+  <section id="overview">
+    <h2>Show Overview</h2>
+    <p><strong>Title:</strong> Phineas and Ferb</p>
+    <p><strong>Genre:</strong> Animated Comedy / Sci-Fi</p>
+    <p><strong>Platform:</strong> Disney Channel</p>
+    <p><strong>Run:</strong> 2007–2015</p>
+    <p><strong>Episodes:</strong> 222 (Analyzed: Seasons 1–4)</p>
+  </section>
+
+  <button id="replayBtn">▶️ Replay Episode Storyline</button>
+  <button id="compareBtn">👀 Candace vs Mom </button>
+
+  <label for="char1">Character 1:</label>
+<select id="char1"></select>
+
+<label for="char2">Character 2:</label>
+<select id="char2"></select>
+
+<button id="replayDuoBtn">Replay Interactions</button>
+
+
+  
+  <h2>Character Appearance Timeline</h2>
+  <section id="filters" style="padding: 1rem 2rem;">
+    <label for="metricSelect">Metric:</label>
+    <select id="metricSelect">
+      <option value="words" selected>Words</option>
+      <option value="lines">Lines</option>
+    </select>
+
+    <label for="characterSelect">Character:</label>
+    <select id="characterSelect">
+      <option value="all">All</option>
+    </select>
+  
+    <label for="seasonSelect">Season:</label>
+    <select id="seasonSelect">
+      <option value="all">All</option>
+    </select>
+  
+    <label>
+      <input type="checkbox" id="majorOnlyToggle"> Show Major Characters Only
+    </label>
+  </section>
+  
+  <section id="extras" style="padding: 1rem 2rem;">
+    <label for="characterSearch">Search Character:</label>
+    <input type="text" id="characterSearch" placeholder="e.g. Perry" />
+  
+    <div id="legend" style="margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 12px;"></div>
+
+  </section>
+  
+  
+  <svg id="timelineChart" width="1200" height="600"></svg>
+
+  <script src="script.js"></script>
+  <div id="tooltip"></div>
+
+</body>
+</html>
