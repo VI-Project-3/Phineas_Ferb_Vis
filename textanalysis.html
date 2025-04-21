@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Character Word Analysis</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="css/textanalysis_style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>What Do They Say Alot?</h1>
+    <div class="dropdown-container">
+      <!-- Character Dropdown -->
+    <label for="characterSelect">Choose a character:</label>
+    <select id="characterSelect">
+      <option value="">-- Choose a Character --</option>
+    </select>
+
+    <!-- Season Dropdown (optional) -->
+    <label for="seasonSelect">Season:</label>
+    <select id="seasonSelect">
+      <option value="all">All</option>
+      <option value="1">Season 1</option>
+      <option value="2">Season 2</option>
+      <option value="3">Season 3</option>
+      <option value="4">Season 4</option>
+    </select>
+    </div>
+    
+
+    <!-- Word Cloud -->
+    <div id="wordCloud"></div>
+    <div id="barChart"></div>
+
+    <!-- Frequent Phrases -->
+    <section id="phrases">
+      <h2>Common Phrases</h2>
+      <ul id="commonPhrases"></ul>
+    </section>
+
+  <!-- JS Scripts -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
+  <script src="stopwords.js"></script>
+  <script src="textanalysis.js"></script>
+</body>
+</html>
