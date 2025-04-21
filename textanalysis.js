@@ -113,7 +113,7 @@ function renderWordCloud(data) {
 
   const fontScale = d3.scaleLinear()
     .domain([d3.min(data, d => d[1]), d3.max(data, d => d[1])])
-    .range([14, 60]); // min and max font sizes
+    .range([14, 60]);
 
   const layout = d3.layout.cloud()
     .size([width, height])
@@ -125,23 +125,126 @@ function renderWordCloud(data) {
 
   layout.start();
 
+  // function draw(words) {
+  //   d3.select("#wordCloud")
+  //     .append("svg")
+  //     .attr("width", width)
+  //     .attr("height", height)
+  //     .append("g")
+  //     .attr("transform", `translate(${width / 2},${height / 2})`)
+  //     .selectAll("text")
+  //     .data(words)
+  //     .enter().append("text")
+  //     .style("font-size", d => `${d.size}px`)
+  //     .style("fill", () => d3.schemeTableau10[Math.floor(Math.random() * 10)])
+  //     .attr("text-anchor", "middle")
+  //     .attr("transform", d => `translate(${d.x},${d.y})rotate(${d.rotate})`)
+  //     .text(d => d.text)
+  //     .style("cursor", "pointer")
+  //     .on("mouseover", function () {
+  //       d3.select(this)
+  //         .transition()
+  //         .duration(200)
+  //         .style("font-size", d => `${d.size * 1.2}px`)
+  //         .style("fill", "black");
+  //     })
+  //     .on("mouseout", function () {
+  //       d3.select(this)
+  //         .transition()
+  //         .duration(200)
+  //         .style("font-size", d => `${d.size}px`)
+  //         .style("fill", () => d3.schemeTableau10[Math.floor(Math.random() * 10)]);
+  //     })
+  //     .on("click", function (event, d) {
+  //       showPhrasesWithWord(d.text);
+      
+  //       // Remove highlight from all bars first
+  //       d3.selectAll("#barChart rect").attr("fill", "#4B8DF8");
+      
+  //       // Highlight the clicked word's bar
+  //       const wordClass = `.bar-${d.text.toLowerCase()}`;
+  //       d3.select(wordClass).attr("fill", "#FF8800");
+  //     });
+      
+  // }
   function draw(words) {
-    d3.select("#wordCloud")
+    const svgGroup = d3.select("#wordCloud")
       .append("svg")
       .attr("width", width)
       .attr("height", height)
       .append("g")
-      .attr("transform", `translate(${width / 2},${height / 2})`)
-      .selectAll("text")
+      .attr("transform", `translate(${width / 2},${height / 2})`);
+  
+    svgGroup.selectAll("text")
       .data(words)
       .enter().append("text")
-      .style("font-size", d => `${d.size}px`)
-      .style("fill", () => d3.schemeTableau10[Math.floor(Math.random() * 10)])
       .attr("text-anchor", "middle")
       .attr("transform", d => `translate(${d.x},${d.y})rotate(${d.rotate})`)
-      .text(d => d.text);
+      .style("font-size", d => `${d.size}px`)
+      .style("fill", () => d3.schemeTableau10[Math.floor(Math.random() * 10)])
+      .style("cursor", "pointer")
+      .attr("class", d => `word-${d.text.toLowerCase().replace(/[^a-z0-9]/g, "")}`)
+      .style("transition", "all 0.3s ease")
+      .text(d => d.text)
+      .on("mouseover", function (event, d) {
+        d3.selectAll("#wordCloud text")
+          .style("opacity", 0.3);
+  
+        d3.select(this)
+          .style("opacity", 1)
+          .style("fill", "#000")
+          .transition().duration(200)
+          .style("font-size", `${d.size * 1.3}px`);
+      })
+      .on("mouseout", function (event, d) {
+        d3.selectAll("#wordCloud text")
+          .style("opacity", 1)
+          .style("fill", () => d3.schemeTableau10[Math.floor(Math.random() * 10)])
+          .transition().duration(200)
+          .style("font-size", d => `${d.size}px`);
+      })
+      .on("click", function (event, d) {
+        const selectedWord = d.text.toLowerCase();
+  
+        // 🔍 Highlight matching bar
+        d3.selectAll("#barChart rect")
+          .style("opacity", rectData => rectData[0] === selectedWord ? 1 : 0.3)
+          .attr("fill", rectData => rectData[0] === selectedWord ? "#315fbd" : "#4B8DF8");
+  
+        // 💬 Update phrases box with matches
+        const matchingLines = allLines.filter(line =>
+          line.speaker === currentCharacter &&
+          (currentSeason === "all" || line.season === +currentSeason) &&
+          line.line.toLowerCase().includes(selectedWord)
+        );
+  
+        const phraseCounts = {};
+        matchingLines.forEach(line => {
+          const words = line.line.toLowerCase().split(/\s+/);
+          for (let i = 0; i < words.length - 2; i++) {
+            const phrase = `${words[i]} ${words[i + 1]} ${words[i + 2]}`;
+            if (phrase.includes(selectedWord)) {
+              phraseCounts[phrase] = (phraseCounts[phrase] || 0) + 1;
+            }
+          }
+        });
+  
+        const sortedPhrases = Object.entries(phraseCounts)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5);
+  
+        const ul = document.getElementById("commonPhrases");
+        ul.innerHTML = "";
+        sortedPhrases.forEach(([phrase, count]) => {
+          const li = document.createElement("li");
+          li.textContent = `"${phrase}..." — ${count} times`;
+          ul.appendChild(li);
+        });
+      });
   }
+  
 }
+
 
 function renderBarChart(data) {
   d3.select("#barChart").selectAll("*").remove();
@@ -181,28 +284,50 @@ function renderBarChart(data) {
 
   // Bars
   svg.selectAll("rect")
-    .data(data)
-    .enter().append("rect")
-    .attr("y", d => y(d[0]))
-    .attr("x", 0)
-    .attr("height", y.bandwidth())
-    .attr("width", d => x(d[1]))
-    .attr("fill", "#4B8DF8")
-    .on("mouseover", (event, d) => {
-      tooltip
-        .style("opacity", 1)
-        .html(`<strong>${d[0]}</strong>: ${d[1]} times`);
-      d3.select(event.currentTarget).attr("fill", "#315fbd");
-    })
-    .on("mousemove", (event) => {
-      tooltip
-        .style("left", event.pageX + 15 + "px")
-        .style("top", event.pageY - 20 + "px");
-    })
-    .on("mouseout", (event) => {
-      tooltip.style("opacity", 0);
-      d3.select(event.currentTarget).attr("fill", "#4B8DF8");
-    });
+  .data(data)
+  .enter().append("rect")
+  .attr("y", d => y(d[0]))
+  .attr("x", 0)
+  .attr("height", y.bandwidth())
+  .attr("width", d => x(d[1]))
+  .attr("fill", "#4B8DF8")
+  .attr("class", d => `bar-${d[0].toLowerCase()}`)
+  .style("transition", "transform 0.3s ease, opacity 0.3s ease, fill 0.3s ease")
+  .on("mouseover", function (event, d) {
+    tooltip
+      .style("opacity", 1)
+      .html(`<strong>${d[0]}</strong>: ${d[1]} times`);
+
+    d3.selectAll("rect")
+      .transition()
+      .duration(200)
+      .style("opacity", 0.3)
+      .style("transform", "scale(1)");
+
+    d3.select(this)
+      .transition()
+      .duration(200)
+      .style("opacity", 1)
+      .style("transform", "scale(1.05)")
+      .attr("fill", "#315fbd");
+  })
+  .on("mousemove", (event) => {
+    tooltip
+      .style("left", event.pageX + 15 + "px")
+      .style("top", event.pageY - 20 + "px");
+  })
+  .on("mouseout", function () {
+    tooltip.style("opacity", 0);
+
+    d3.selectAll("rect")
+      .transition()
+      .duration(200)
+      .style("opacity", 1)
+      .style("transform", "scale(1)")
+      .attr("fill", "#4B8DF8");
+  });
+
+
 
   // Y-axis
   svg.append("g")
@@ -253,4 +378,29 @@ function renderPhrases(lines) {
     li.textContent = `"${phrase}..." — ${count} times`;
     ul.appendChild(li);
   });
+}
+
+function showPhrasesWithWord(word) {
+  const filtered = allLines.filter(d =>
+    d.speaker === currentCharacter &&
+    (currentSeason === "all" || d.season === +currentSeason)
+  );
+
+  const matching = filtered.filter(d =>
+    d.line.toLowerCase().includes(word.toLowerCase())
+  );
+
+  const phrases = matching.map(d => d.line.trim()).slice(0, 5);
+
+  const ul = document.getElementById("commonPhrases");
+  ul.innerHTML = "";
+  if (phrases.length === 0) {
+    ul.innerHTML = "<li>No matching phrases found.</li>";
+  } else {
+    phrases.forEach(p => {
+      const li = document.createElement("li");
+      li.textContent = `"${p}"`;
+      ul.appendChild(li);
+    });
+  }
 }
