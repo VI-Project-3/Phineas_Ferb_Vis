@@ -9,18 +9,6 @@ const characterColors = {
   Baljeet: "#000075",
   default: "#4B8DF8"
 };
-const characterImages = {
-  Phineas: "images/Phineas.png",
-  // Ferb: "assets/avatars/Ferb.png",
-  // Candace: "assets/avatars/Candace.png",
-  // Perry: "assets/avatars/Perry.png",
-  // Doofenshmirtz: "assets/avatars/Doofenshmirtz.png",
-  // Isabella: "assets/avatars/Isabella.png",
-  // Buford: "assets/avatars/Buford.png",
-  // Baljeet: "assets/avatars/Baljeet.png"
-};
-
-
 const svg = d3.select("#timelineChart");
 const margin = { top: 50, right: 30, bottom: 60, left: 150 };
 const width = +svg.attr("width") - margin.left - margin.right;
@@ -150,25 +138,14 @@ function populateDropdowns(transcripts) {
       .style("align-items", "center")
       .style("margin-right", "12px");
 
-    // item.append("div")
-    //   .style("width", "12px")
-    //   .style("height", "12px")
-    //   .style("background-color", color)
-    //   .style("margin-right", "6px")
-    //   .style("border-radius", "3px");
-
-    // item.append("span").text(character);
-
-    item.append("img")
-      .attr("src", characterImages[character] || "images/default.png")
-      .style("width", "28px")
-      .style("height", "28px")
-      .style("border-radius", "50%")
-      .style("margin-right", "8px")
-      .style("object-fit", "cover");
+    item.append("div")
+      .style("width", "12px")
+      .style("height", "12px")
+      .style("background-color", color)
+      .style("margin-right", "6px")
+      .style("border-radius", "3px");
 
     item.append("span").text(character);
-
   });
 }
 
@@ -280,146 +257,6 @@ seasonGroups.forEach(([season, eps], i) => {
 
 
 }
-
-// function renderChart() {
-//   g.selectAll("*").remove();
-
-//   let displayData = dotData;
-
-//   if (filterMajorOnly) {
-//     displayData = displayData.filter(d => majorCharacters.has(d.character));
-//   }
-//   if (currentCharacter !== "all") {
-//     displayData = displayData.filter(d => d.character === currentCharacter);
-//   }
-//   if (currentSeason !== "all") {
-//     displayData = displayData.filter(d => d.season === +currentSeason);
-//   }
-
-//   const episodes = Array.from(
-//     new Set(displayData.map(d => d.episodeIndex))
-//   ).sort((a, b) => {
-//     const [sa, ea] = a.slice(1).split("E").map(Number);
-//     const [sb, eb] = b.slice(1).split("E").map(Number);
-//     return sa - sb || ea - eb;
-//   });
-
-//   const seasonGroups = d3.groups(episodes, e => e.split("E")[0]);
-//   const characters = Array.from(new Set(displayData.map(d => d.character))).sort();
-
-//   const x = d3.scalePoint().domain(episodes).range([0, width]).padding(0.5);
-//   const y = d3.scaleBand().domain(characters).range([0, height]).padding(0.1);
-
-//   // X-axis (will zoom)
-//   const xAxisGroup = g.append("g")
-//     .attr("class", "x-axis")
-//     .attr("transform", `translate(0,${height})`)
-//     .call(d3.axisBottom(x).tickFormat(d => d));
-
-//   xAxisGroup.selectAll("text")
-//     .style("text-anchor", "end")
-//     .attr("dx", "-0.8em")
-//     .attr("dy", "0.15em")
-//     .attr("transform", "rotate(-45)");
-
-//   // Y-axis (static)
-//   g.append("g")
-//     .attr("class", "y-axis")
-//     .call(d3.axisLeft(y));
-
-//   // Layer to zoom
-//   const zoomLayer = g.append("g").attr("class", "zoomLayer");
-
-//   // Background bands
-//   const bands = zoomLayer.selectAll("rect")
-//     .data(seasonGroups)
-//     .enter()
-//     .append("rect")
-//     .attr("x", d => x(d[1][0]) - 10)
-//     .attr("y", 0)
-//     .attr("width", d => x(d[1][d[1].length - 1]) - x(d[1][0]) + 20)
-//     .attr("height", height)
-//     .attr("fill", (d, i) => i % 2 === 0 ? "#f9f9f9" : "#e9e9e9");
-
-//   // Circles
-//   const dots = zoomLayer.selectAll("circle")
-//     .data(displayData)
-//     .enter()
-//     .append("circle")
-//     .attr("cx", d => x(d.episodeIndex))
-//     .attr("cy", d => y(d.character) + y.bandwidth() / 2)
-//     .attr("r", d => Math.sqrt(d[currentMetric]) * 0.5)
-//     .attr("fill", d => characterColors[d.character] || characterColors.default)
-//     .attr("opacity", 0.8)
-//     .on("mouseover", function (event, d) {
-//       d3.select("#tooltip")
-//         .style("display", "block")
-//         .html(`
-//           <strong>${d.character}</strong><br>
-//           S${d.season}E${d.episode.toString().padStart(2, '0')} • ${d[currentMetric] || 0} ${currentMetric}
-//         `);
-//     })
-//     .on("mousemove", function (event) {
-//       d3.select("#tooltip")
-//         .style("left", (event.pageX + 15) + "px")
-//         .style("top", (event.pageY - 30) + "px");
-//     })
-//     .on("mouseout", () => {
-//       d3.select("#tooltip").style("display", "none");
-//     });
-
-//   // Season labels
-//   const seasonLabels = zoomLayer.selectAll("text.season")
-//     .data(seasonGroups)
-//     .enter()
-//     .append("text")
-//     .attr("class", "season")
-//     .attr("x", d => {
-//       const start = x(d[1][0]);
-//       const end = x(d[1][d[1].length - 1]);
-//       return (start + end) / 2;
-//     })
-//     .attr("y", height + 50)
-//     .attr("text-anchor", "middle")
-//     .style("font-size", "12px")
-//     .style("font-weight", "bold")
-//     .text(d => d[0]);
-
-//   // ✅ Zoom: scale x-axis and chart layer only
-//   const zoom = d3.zoom()
-//     .scaleExtent([1, 5])
-//     .on("zoom", function (event) {
-//       const transform = event.transform;
-//       const newX = transform.rescaleX(x);
-
-//       // Update circles
-//       dots.attr("cx", d => newX(d.episodeIndex));
-
-//       // Update background bands
-//       bands
-//         .attr("x", d => newX(d[1][0]) - 10)
-//         .attr("width", d => newX(d[1][d[1].length - 1]) - newX(d[1][0]) + 20);
-
-//       // Update season labels
-//       seasonLabels
-//         .attr("x", d => {
-//           const start = newX(d[1][0]);
-//           const end = newX(d[1][d[1].length - 1]);
-//           return (start + end) / 2;
-//         });
-
-//       // Update x-axis
-//       xAxisGroup.call(d3.axisBottom(newX))
-//         .selectAll("text")
-//         .style("text-anchor", "end")
-//         .attr("dx", "-0.8em")
-//         .attr("dy", "0.15em")
-//         .attr("transform", "rotate(-45)");
-//     });
-
-//   svg.call(zoom);
-// }
-
 // Replay button
 d3.select("#replayBtn").on("click", () => {
   let index = 0;
@@ -513,4 +350,23 @@ d3.select("#replayDuoBtn").on("click", () => {
     i++;
   }, 100);
 });
+
+
+let textAnalysisInitialized = false;
+
+function switchView(view) {
+  const views = ['timelineView', 'textAnalysisView'];
+  views.forEach(id => {
+    document.getElementById(id).style.display = (id === view + 'View') ? 'block' : 'none';
+  });
+
+  // Initialize text analysis only once
+  if (view === "textAnalysis" && !textAnalysisInitialized) {
+    initTextAnalysis();
+    textAnalysisInitialized = true;
+  }
+}
+
+
+
 

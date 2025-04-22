@@ -1,8 +1,8 @@
 // textAnalysis.js
+function initTextAnalysis() {
+// document.addEventListener("DOMContentLoaded", () => {
 
-document.addEventListener("DOMContentLoaded", () => {
-  loadData();
-});
+// });
 
 const filePaths = [
   "data/phineas_and_ferb_transcripts_1.csv",
@@ -15,6 +15,7 @@ let allLines = [];
 let currentCharacter = "Phineas";
 let currentSeason = "all";
 
+
 const stopWords = new Set([
   "the", "and", "if", "was", "a", "to", "of", "in", "is", "it", "on", "for", "with",
   "that", "at", "by", "an", "be", "this", "have", "from", "i", "s", "t", "you", "we",
@@ -22,7 +23,7 @@ const stopWords = new Set([
 ]);
 
 const allowedShortWords = new Set(["no", "oh", "go", "ok", "yes"]);
-
+loadData();
 async function loadData() {
   const rawData = await Promise.all(filePaths.map(path => d3.csv(path)));
   allLines = rawData.flat().map(d => ({
@@ -403,4 +404,5 @@ function showPhrasesWithWord(word) {
       ul.appendChild(li);
     });
   }
+}
 }
