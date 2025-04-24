@@ -1,103 +1,73 @@
-// textAnalysis.js
 function initTextAnalysis() {
-// document.addEventListener("DOMContentLoaded", () => {
+  const filePaths = [
+    "data/phineas_and_ferb_transcripts_1.csv",
+    "data/phineas_and_ferb_transcripts_2.csv",
+    "data/phineas_and_ferb_transcripts_3.csv",
+    "data/phineas_and_ferb_transcripts_4.csv",
+  ];
 
-// });
+  let allLines = [];
+  let currentCharacter = d3.select("#characterSelect").property("value");
+  let currentSeason = d3.select("#seasonSelect").property("value");
 
-const filePaths = [
-  "data/phineas_and_ferb_transcripts_1.csv",
-  "data/phineas_and_ferb_transcripts_2.csv",
-  "data/phineas_and_ferb_transcripts_3.csv",
-  "data/phineas_and_ferb_transcripts_4.csv",
-];
+  const stopWords = new Set([
+    "the", "and", "if", "was", "a", "to", "of", "in", "is", "it", "on", "for", "with",
+    "that", "at", "by", "an", "be", "this", "have", "from", "i", "s", "t", "you", "we",
+    "he", "she", "they", "my", "me", "do", "did", "has", "had", "his", "her", "not", "are"
+  ]);
 
-let allLines = [];
-let currentCharacter = "Phineas";
-let currentSeason = "all";
+  const allowedShortWords = new Set(["no", "oh", "go", "ok", "yes"]);
 
-
-const stopWords = new Set([
-  "the", "and", "if", "was", "a", "to", "of", "in", "is", "it", "on", "for", "with",
-  "that", "at", "by", "an", "be", "this", "have", "from", "i", "s", "t", "you", "we",
-  "he", "she", "they", "my", "me", "do", "did", "has", "had", "his", "her", "not", "are"
-]);
-
-const allowedShortWords = new Set(["no", "oh", "go", "ok", "yes"]);
-loadData();
-async function loadData() {
-  const rawData = await Promise.all(filePaths.map(path => d3.csv(path)));
-  allLines = rawData.flat().map(d => ({
-    season: +d.season,
-    episode: +d.episode,
-    speaker: d.speaker?.replace(/\(.*?\)/g, "").trim(),
-    line: d.line || ""
-  }));
-
-  populateCharacterOptions();
-  updateVisuals();
-}
-
-function populateCharacterOptions() {
-  const characters = [...new Set(allLines.map(d => d.speaker).filter(Boolean))].sort();
-  const select = document.getElementById("characterSelect");
-  characters.forEach(char => {
-    const option = document.createElement("option");
-    option.value = char;
-    option.textContent = char;
-    if (char === currentCharacter) option.selected = true;
-    select.appendChild(option);
-  });
-
-  select.addEventListener("change", e => {
-    currentCharacter = e.target.value;
+  async function loadData() {
+    const rawData = await Promise.all(filePaths.map(path => d3.csv(path)));
+    allLines = rawData.flat().map(d => ({
+      season: +d.season,
+      episode: +d.episode,
+      speaker: d.speaker?.replace(/\(.*?\)/g, "").trim(),
+      line: d.line || ""
+    }));
     updateVisuals();
-  });
+  }
+  // 🔄 Reuse dropdown listeners
+  d3.select("#characterSelect").on("change.textAnalysis", updateVisuals);
+  d3.select("#seasonSelect").on("change.textAnalysis", updateVisuals);
 
-  const seasonSelect = document.getElementById("seasonSelect");
-seasonSelect.innerHTML = ""; // ✅ clear existing options
-["all", 1, 2, 3, 4].forEach(season => {
-  const opt = document.createElement("option");
-  opt.value = season;
-  opt.textContent = season === "all" ? "All Seasons" : `Season ${season}`;
-  seasonSelect.appendChild(opt);
-});
+  loadData(); // initial load
 
-  seasonSelect.addEventListener("change", e => {
-    currentSeason = e.target.value;
-    updateVisuals();
-  });
-}
 
-function updateVisuals() {
-  const filtered = allLines.filter(d =>
-    d.speaker === currentCharacter &&
-    (currentSeason === "all" || d.season === +currentSeason)
-  );
+  function updateVisuals() {
+    currentCharacter = d3.select("#characterSelect").property("value");
+    currentSeason = d3.select("#seasonSelect").property("value");
 
-  const allText = filtered.map(d => d.line.toLowerCase()).join(" ");
-  const words = allText.match(/\b[\w']+\b/g) || [];
-
-  const cleaned = words.filter(w => {
-    const word = w.replace(/[^a-zA-Z']/g, "");
-    return (
-      (word.length > 2 || allowedShortWords.has(word)) &&
-      !stopWords.has(word)
+    const filtered = allLines.filter(d =>
+      d.speaker === currentCharacter &&
+      (currentSeason === "all" || d.season === +currentSeason)
     );
-  });
 
-  const wordFreq = d3.rollup(
-    cleaned,
-    v => v.length,
-    w => w
-  );
+    const allText = filtered.map(d => d.line.toLowerCase()).join(" ");
+    const words = allText.match(/\b[\w']+\b/g) || [];
 
-  const sortedWords = Array.from(wordFreq.entries()).sort((a, b) => b[1] - a[1]);
-  renderWordCloud(sortedWords.slice(0, 50));
-  renderBarChart(sortedWords.slice(0, 10));
-  renderPhrases(filtered);
-}
+    const cleaned = words.filter(w => {
+      const word = w.replace(/[^a-zA-Z']/g, "");
+      return (
+        (word.length > 2 || allowedShortWords.has(word)) &&
+        !stopWords.has(word)
+      );
+    });
 
-function renderWordCloud(data) {
+    const wordFreq = d3.rollup(
+      cleaned,
+      v => v.length,
+      w => w
+    );
+
+    const sortedWords = Array.from(wordFreq.entries()).sort((a, b) => b[1] - a[1]);
+    renderWordCloud(sortedWords.slice(0, 50));
+    renderBarChart(sortedWords.slice(0, 10));
+    renderPhrases(filtered);
+  }
+
+  function renderWordCloud(data) {
   d3.select("#wordCloud").selectAll("*").remove();
 
   if (data.length === 0) {

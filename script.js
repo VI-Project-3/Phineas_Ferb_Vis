@@ -9,6 +9,7 @@ const characterColors = {
   Baljeet: "#000075",
   default: "#4B8DF8"
 };
+
 const svg = d3.select("#timelineChart");
 const margin = { top: 50, right: 30, bottom: 60, left: 150 };
 const width = +svg.attr("width") - margin.left - margin.right;
@@ -26,46 +27,79 @@ let filterMajorOnly = false;
 let currentMetric = "words";
 let majorCharacters = new Set();
 
+
 Promise.all(filePaths.map(path => d3.csv(path))).then(all => {
   let transcripts = all.flat();
 
-  // Parse and clean data
   transcripts.forEach(d => {
     d.season = parseInt(d.season);
     d.episode = parseInt(d.episode);
-
-    if (isNaN(d.season) || isNaN(d.episode)) {
-      d._skip = true;
-    }
+    if (isNaN(d.season) || isNaN(d.episode)) d._skip = true;
 
     d.words = d.line ? d.line.trim().split(/\s+/).length : 0;
-    d.character = d.speaker?.replace(/\(.*?\)/g, "").trim();
+
+    let name = d.speaker?.replace(/\(.*?\)/g, "").trim().toLowerCase();
+    if (name) {
+      name = name.replace(/\s+/g, " ");
+      name = name.replace(/\b\w/g, c => c.toUpperCase());
+    }
+    d.character = name;
   });
 
-  transcripts = transcripts.filter(d => !d._skip);
+  transcripts = transcripts.filter(d =>
+    !d._skip &&
+    d.character &&
+    /^[a-zA-Z\s.'-]{2,30}$/.test(d.character) // remove weird characters
+  );
 
+  // STEP 1: Count episodes per character
+  const charEpisodeMap = d3.rollups(
+    transcripts,
+    v => new Set(v.map(d => `${d.season}-${d.episode}`)).size,
+    d => d.character
+  );
+  const episodeCounts = Object.fromEntries(charEpisodeMap);
+
+  // STEP 2: Remove any character with < 50 words in **all** episodes they appear in
+  const episodeWordMap = d3.rollup(
+    transcripts,
+    v => d3.sum(v, d => d.words),
+    d => `${d.character}|${d.season}|${d.episode}`
+  );
+
+  const keepCharacters = new Set();
+
+  transcripts.forEach(d => {
+    const key = `${d.character}|${d.season}|${d.episode}`;
+    const totalWords = episodeWordMap.get(key);
+    const episodes = episodeCounts[d.character];
+
+    if (episodes > 1 && totalWords >= 50) {
+      keepCharacters.add(d.character);
+    }
+  });
+
+  transcripts = transcripts.filter(d => keepCharacters.has(d.character));
+
+  // Recalculate major characters
   const totals = d3.rollups(transcripts, v => d3.sum(v, d => d.words), d => d.character);
   majorCharacters = new Set(totals.filter(d => d[1] > 3000).map(d => d[0]));
 
-  // ✅ Grouped cleanly with proper key
+  // Group by character + episode
   const grouped = d3.group(transcripts, d =>
     `${d.character}|${d.season}|${d.episode}`
   );
 
   dotData = Array.from(grouped, ([key, values]) => {
     const [character, season, episode] = key.split("|");
-    const words = d3.sum(values, d => d.words);
-    const lines = values.length;
-    const title = values[0].title || "(Unknown)";
     return {
       character,
       season: +season,
       episode: +episode,
-      episodeLabel: `S${season}E${episode.toString().padStart(2, '0')}`,
       episodeIndex: `S${season}E${episode.toString().padStart(2, '0')}`,
-      title,
-      words,
-      lines
+      title: values[0].title || "(Unknown)",
+      words: d3.sum(values, d => d.words),
+      lines: values.length
     };
   });
 
@@ -73,34 +107,40 @@ Promise.all(filePaths.map(path => d3.csv(path))).then(all => {
   renderChart();
 });
 
+
 function populateDropdowns(transcripts) {
-
-  const allChars = Array.from(new Set(transcripts.map(d => d.character))).sort();
-
-["#char1", "#char2"].forEach(selectId => {
-  const sel = d3.select(selectId);
-  allChars.forEach(c => {
-    sel.append("option").attr("value", c).text(c);
-  });
-});
-
-
-  const allCharacters = Array.from(new Set(transcripts.map(d => d.character))).sort();
-  const allSeasons = Array.from(new Set(transcripts.map(d => d.season))).sort((a, b) => a - b);
+  const uniqueCharacters = Array.from(
+    new Set(
+      transcripts.map(d => d.character)
+        .filter(c => c && c.length <= 30 && /^[a-zA-Z\s'-]+$/.test(c))
+    )
+  ).sort();
 
   const charSelect = d3.select("#characterSelect");
-  allCharacters.forEach(c => {
+  charSelect.selectAll("option").remove();
+  charSelect.append("option").attr("value", "all").text("All Characters");
+
+  uniqueCharacters.forEach(c => {
     charSelect.append("option").attr("value", c).text(c);
   });
+
   charSelect.on("change", function () {
     currentCharacter = this.value;
     renderChart();
   });
 
   const seasonSelect = d3.select("#seasonSelect");
-  allSeasons.forEach(s => {
-    seasonSelect.append("option").attr("value", s).text(`Season ${s}`);
-  });
+  seasonSelect.selectAll("option").remove();
+  seasonSelect.append("option").attr("value", "all").text("All Seasons");
+
+  Array.from(new Set(transcripts.map(d => d.season)))
+    .sort((a, b) => a - b)
+    .forEach(s => {
+      seasonSelect.append("option")
+        .attr("value", s)
+        .text(`Season ${s}`);
+    });
+
   seasonSelect.on("change", function () {
     currentSeason = this.value;
     renderChart();
@@ -164,7 +204,6 @@ function renderChart() {
     displayData = displayData.filter(d => d.season === +currentSeason);
   }
 
-  // ✅ Properly sorted episodes based on S1E01-style
   const episodes = Array.from(
     new Set(displayData.map(d => d.episodeIndex))
   ).sort((a, b) => {
@@ -178,8 +217,7 @@ const seasonGroups = d3.groups(episodes, e => e.split("E")[0]); // "S1", "S2", .
 
 
   const characters = Array.from(new Set(displayData.map(d => d.character))).sort();
-
-  const x = d3.scalePoint().domain(episodes).range([0, width]);
+  const x = d3.scaleBand().domain(episodes).range([0, width]).padding(0.2);
   const y = d3.scaleBand().domain(characters).range([0, height]).padding(0.1);
 
   g.append("g")
@@ -222,10 +260,10 @@ seasonGroups.forEach(([season, eps], i) => {
 
 
   g.selectAll("circle")
-    .data(displayData, d => `${d.character}-${d.episodeIndex}`)
+    .data(displayData)
     .join(
       enter => enter.append("circle")
-        .attr("cx", d => x(d.episodeIndex))
+        .attr("cx", d => (x(d.episodeIndex)?? 0) + x.bandwidth() / 2)
         .attr("cy", d => y(d.character) + y.bandwidth() / 2)
         .attr("r", 0)
         .attr("fill", d => characterColors[d.character] || characterColors.default)
@@ -253,10 +291,8 @@ seasonGroups.forEach(([season, eps], i) => {
       update => update,
       exit => exit.transition().duration(400).attr("r", 0).remove()
     );
-  
-
-
 }
+
 // Replay button
 d3.select("#replayBtn").on("click", () => {
   let index = 0;
