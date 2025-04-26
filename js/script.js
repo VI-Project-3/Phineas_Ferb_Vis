@@ -124,9 +124,42 @@ function populateDropdowns(transcripts) {
     charSelect.append("option").attr("value", c).text(c);
   });
 
+
+  // Show modal if major character is selected
   charSelect.on("change", function () {
-    currentCharacter = this.value;
+    const selected = this.value;
+  
+    if (filterMajorOnly && selected !== "all" && !majorCharacters.has(selected)) {
+      const modal = document.getElementById("modal");
+      const list = document.getElementById("majorCharactersList");
+  
+      list.innerHTML = ""; // clear old items
+  
+      Array.from(majorCharacters).sort().forEach(c => {
+        const li = document.createElement("li");
+        li.textContent = c;
+        list.appendChild(li);
+      });
+
+      //Show the modal popup
+      document.getElementById("modal").style.display = "block";
+      
+      // Reset dropdown back to 'all'
+      d3.select(this).property("value", "all");
+      currentCharacter = "all";
+
+      // Reset the character search input
+      d3.select("#characterSearch").property("value", "");
+    } else {
+      currentCharacter = selected;
+    }
+  
     renderChart();
+  });
+  
+  // // Close modal when button clicked
+  document.getElementById("closeModal").addEventListener("click", function() {
+    document.getElementById("modal").style.display = "none";
   });
 
   const seasonSelect = d3.select("#seasonSelect");
@@ -156,18 +189,48 @@ function populateDropdowns(transcripts) {
     renderChart();
   });
 
+  // Character search input
   d3.select("#characterSearch").on("input", function () {
-    const query = this.value.toLowerCase();
-    const match = Array.from(majorCharacters).find(c => c.toLowerCase().includes(query));
-    if (match) {
-      currentCharacter = match;
-      d3.select("#characterSelect").property("value", match);
+    const query = this.value.trim().toLowerCase();
+  
+    var exactMatch = Array.from(uniqueCharacters).find(c => c.toLowerCase().includes(query));
+    
+    if(filterMajorOnly){
+      exactMatch = Array.from(uniqueCharacters).find(c => c.toLowerCase() === query);
+    }
+  
+    if (exactMatch) {
+      if (filterMajorOnly && !majorCharacters.has(exactMatch)) {
+        // Show popup if not a major character
+        const modal = document.getElementById("modal");
+        const list = document.getElementById("majorCharactersList");
+  
+        list.innerHTML = "";
+        Array.from(majorCharacters).sort().forEach(c => {
+          const li = document.createElement("li");
+          li.textContent = c;
+          list.appendChild(li);
+        });
+  
+        modal.style.display = "block";
+  
+        // Reset dropdown and search
+        currentCharacter = "all";
+        d3.select("#characterSelect").property("value", "all");
+        d3.select(this).property("value", "");
+      } else {
+        currentCharacter = exactMatch;
+        d3.select("#characterSelect").property("value", exactMatch);
+      }
     } else {
+      // Don't immediately reset, just wait
       currentCharacter = "all";
       d3.select("#characterSelect").property("value", "all");
     }
+  
     renderChart();
   });
+  
 
   const legend = d3.select("#legend");
   legend.html("<strong>Legend:</strong>");
