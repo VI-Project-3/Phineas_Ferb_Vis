@@ -47,7 +47,7 @@
 
       <div class="control-block">
         <label for="characterSearch">Search</label>
-        <input type="text" id="characterSearch" placeholder="e.g. Perry" />
+        <input type="text" id="characterSearch" placeholder="e.g. Phineas" />
       </div>
 
       <hr />
@@ -134,13 +134,25 @@
     <p>🛠️ Created for CS Visualization Project — Hosted on GitHub Pages</p>
   </footer>
 
-  <script src="script.js"></script>
+  <script src="js/script.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.min.js"></script>
 
 <canvas id="myCanvas" width="600" height="400"></canvas>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
-<script src="textanalysis.js"></script>
+<script src="js/textanalysis.js"></script>
+
+<!-- Modal Popup -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <h2>Only Major Characters Allowed</h2>
+    <p>Please select a major character. Here’s the list:</p>
+    <ul id="majorCharactersList"></ul> <!-- We'll populate this dynamically -->
+    <button id="closeModal">Close</button>
+  </div>
+</div>
+
+
 
 </body>
 </html>

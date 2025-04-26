@@ -9,22 +9,22 @@
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet"/>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="../css/style.css"/>
 </head>
 <body>
 
   <div class="character-scene">
     
     <div class="character-wrapper">
-      <img src="images/Phineaspose.png" alt="Phineas" class="scene-character phineas" />
+      <img src="../images/Phineaspose.png" alt="Phineas" class="scene-character phineas" />
       <div class="bubble">"Ferb, I know what we're gonna do today!"</div>
     </div>
     <div class="character-wrapper">
-      <img src="images/Ferbpose.png" alt="Ferb" class="scene-character ferb" />
+      <img src="../images/Ferbpose.png" alt="Ferb" class="scene-character ferb" />
       <div class="bubble">"...!"</div>
     </div>
     <div class="character-wrapper">
-      <img src="images/Candacepose.png" alt="Candace" class="scene-character candace" />
+      <img src="../images/Candacepose.png" alt="Candace" class="scene-character candace" />
       <div class="bubble">"MOM! Phineas and Ferb are building a website!"</div>
     </div>
     
@@ -33,11 +33,11 @@
   </div>
   
   <main class="landing-content">
-    <!-- Logo: Click to go to index.html -->
-    <a href="homepage.html" aria-label="Go to Main Visualization">
-      <img src="images/Phineas and Ferb.png" alt="Phineas and Ferb Logo" class="logo"/>
+    <!-- Logo: Click to go to homepage.html -->
+    <a href="#" id="logoLink" aria-label="Go to Main Visualization">
+      <img src="../images/Phineas and Ferb.png" alt="Phineas and Ferb Logo" class="logo"/>
     </a>
-
+    <!-- Title and Description -->
     <h1>Welcome to the Phineas & Ferb Data Lab</h1>
     <p>Explore who talks the most, where, when, and with whom in the tri-state area!</p>
 
@@ -47,15 +47,22 @@
   <div id="tvStatic" class="static-overlay"></div>
   <!-- JavaScript -->
   <script>
-  document.getElementById("startBtn").addEventListener("click", () => {
-    const staticOverlay = document.getElementById("tvStatic");
-    staticOverlay.classList.add("active");
-
-    setTimeout(() => {
-      window.location.href = "homepage.html";
-    }, 1500); // Delay before redirect
-  });
+    function triggerStaticAndRedirect() {
+      const staticOverlay = document.getElementById("tvStatic");
+      staticOverlay.classList.add("active");
+  
+      setTimeout(() => {
+        window.location.href = "homepage.html";
+      }, 1500);
+    }
+  
+    document.getElementById("startBtn").addEventListener("click", triggerStaticAndRedirect);
+    document.getElementById("logoLink").addEventListener("click", (e) => {
+      e.preventDefault(); // stop immediate jump
+      triggerStaticAndRedirect();
+    });
   </script>
+  
   
 
 </body>

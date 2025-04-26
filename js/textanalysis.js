@@ -26,8 +26,21 @@ function initTextAnalysis() {
       speaker: d.speaker?.replace(/\(.*?\)/g, "").trim(),
       line: d.line || ""
     }));
+  
+    // Only set to Phineas if nothing is selected yet
+    const selectedCharacter = d3.select("#characterSelect").property("value");
+    currentCharacter = selectedCharacter && selectedCharacter !== "all" ? selectedCharacter : "Phineas";
+    
+    const selectedSeason = d3.select("#seasonSelect").property("value");
+    currentSeason = selectedSeason && selectedSeason !== "all" ? selectedSeason : "all";
+  
+    // Update dropdowns to reflect this choice
+    d3.select("#characterSelect").property("value", currentCharacter);
+    d3.select("#seasonSelect").property("value", currentSeason);
+  
     updateVisuals();
   }
+  
   // 🔄 Reuse dropdown listeners
   d3.select("#characterSelect").on("change.textAnalysis", updateVisuals);
   d3.select("#seasonSelect").on("change.textAnalysis", updateVisuals);

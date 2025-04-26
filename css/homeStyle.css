@@ -333,3 +333,49 @@ footer {
   text-overflow: ellipsis;
   overflow: hidden;
 }
+
+/* Modal styles with animation */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.5); /* dark background */
+  animation: fadeIn 0.4s ease;
+}
+
+.modal.show {
+  display: block;
+  animation: fadeIn 0.4s ease;
+}
+
+.modal.hide {
+  animation: fadeOut 0.4s ease;
+}
+
+.modal-content {
+  background-color: white;
+  margin: 15% auto;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+#closeModal {
+  margin-top: 1rem;
+  padding: 10px 20px;
+  background: #4B8DF8;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+#closeModal:hover {
+  background: #315fbd;
+}
