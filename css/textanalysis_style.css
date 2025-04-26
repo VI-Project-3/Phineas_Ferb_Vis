@@ -1,0 +1,228 @@
+/* body {
+    font-family: 'Baloo 2', cursive;
+    background: #fef6e4;
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
+  
+  header {
+    text-align: center;
+    padding: 2rem 1rem 1rem;
+    background: #8ecae6;
+    color: #023047;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 1.5rem auto;
+  }
+  
+  .controls select {
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: 2px solid #ccc;
+    background: #fff;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    padding: 2rem;
+    gap: 2rem;
+  }
+  
+  .chart-box {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    padding: 1rem;
+    width: 100%;
+    max-width: 500px;
+    transition: transform 0.3s ease;
+  }
+  
+  .chart-box:hover {
+    transform: translateY(-4px);
+  }
+  
+  .wordcloud svg {
+    width: 100%;
+    height: 400px;
+  }
+  
+  .bar-chart svg {
+    width: 100%;
+    height: 400px;
+  }
+  
+  #phrases {
+    margin-top: 1rem;
+    font-size: 1rem;
+    background: #ffb703;
+    padding: 0.8rem;
+    border-radius: 10px;
+    color: #000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  
+  #phrases ul {
+    padding-left: 1.2rem;
+    margin: 0;
+  }
+  
+  #phrases li {
+    margin: 0.4rem 0;
+  }
+  .dropdown-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 1rem;
+  }
+  
+  .dropdown-container select {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    width: 200px;
+    height: 45px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-family: 'Baloo 2', cursive;
+  }
+  .tooltip-bar {
+    font-family: 'Baloo 2', cursive;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: opacity 0.2s ease;
+  } */
+
+  /* === TEXT ANALYSIS VIEW === */
+#textAnalysisView {
+  background: #ffffff;
+  border: 2px solid var(--accent, #3cbcc3);
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  margin-top: 1rem;
+}
+
+/* === Dropdown Area === */
+.dropdown-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.dropdown-container label {
+  font-weight: bold;
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+.dropdown-container select {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+/* === Word Cloud & Bar Chart === */
+#wordCloud, #barChart {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+#wordCloud svg, #barChart svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* === Phrase Box === */
+#phrases {
+  margin-top: 2rem;
+}
+
+#phrases h3 {
+  font-size: 1.1rem;
+  color: var(--accent, #3cbcc3);
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.8rem;
+}
+
+#commonPhrases {
+  list-style: none;
+  padding-left: 0;
+  font-size: 0.95rem;
+}
+
+#commonPhrases li {
+  padding: 0.4rem 0.6rem;
+  background: #f9fafb;
+  margin-bottom: 0.4rem;
+  border-left: 4px solid var(--accent, #3cbcc3);
+  border-radius: 4px;
+}
+
+/* === Tooltip for Bar Chart === */
+.tooltip-bar {
+  z-index: 999;
+}
+
+/* === Word Hover Highlight (optional) === */
+#wordCloud text:hover {
+  fill: #111 !important;
+  font-weight: bold;
+}
+
+.analysis-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  overflow-x: auto; /* ✅ add this line */
+  padding-bottom: 1rem;
+}
+
+
+.analysis-box {
+  flex: 1;
+  min-width: 300px;  /* ✅ ensures they fit even on small screens */
+  max-width: 33%;
+  box-sizing: border-box;
+}
+
+
+/* Optional: Make sure inner SVGs scale nicely */
+.analysis-box svg {
+  width: 100%;
+  height: auto;
+}
+
+/* Prevent long lists from stretching things */
+#commonPhrases {
+  padding-left: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+  
+  
