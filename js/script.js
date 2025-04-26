@@ -43,6 +43,32 @@ Promise.all(filePaths.map(path => d3.csv(path))).then(all => {
       name = name.replace(/\s+/g, " ");
       name = name.replace(/\b\w/g, c => c.toUpperCase());
     }
+    // Special case corrections
+    const corrections = {
+      "Doofenshimrtz": "Doofenshmirtz",
+      "All": " ",
+      "Blay'N": " ",
+      "Tv Announcer": "Announcer",
+      "Background Singer": " ",
+      "Background Singers": " ",
+      "Both": " ",
+      "Dan": "Dan Povenmire",
+      "Danny": "Danny Jacob",
+      "Doofenshmirtz'S Date": " ",
+      "Farmer'S Wife": " ",
+      "Lindana": "Linda",
+      "Male Singer": " ",
+      "Party Members": " ",
+      "Phineas And Ferb": " ",
+      "Radio Dj": " ",
+      "Voice": " ",
+      "Woman": " ",
+      "Worker": " ",
+    };
+    
+    if (corrections[name]) {
+      name = corrections[name];
+    }
     d.character = name;
   });
 
