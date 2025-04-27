@@ -79,6 +79,7 @@ function initTextAnalysis() {
     renderBarChart(sortedWords.slice(0, 10));
     renderPhrases(filtered);
   }
+  window.updateVisuals = updateVisuals;
 
   function renderWordCloud(data) {
   d3.select("#wordCloud").selectAll("*").remove();

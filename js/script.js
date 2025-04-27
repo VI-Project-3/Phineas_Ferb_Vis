@@ -1,12 +1,21 @@
 const characterColors = {
-  Phineas: "#e6194b",
-  Ferb: "#3cb44b",
-  Candace: "#f58231",
-  Perry: "#46f0f0",
-  Doofenshmirtz: "#911eb4",
-  Isabella: "#fabebe",
-  Buford: "#808000",
-  Baljeet: "#000075",
+  Phineas: "#ff9800",        // slightly muted bright orange
+  Ferb: "#4caf50",           // classic fresh green
+  Candace: "#f04a4a",        // soft but strong red
+  Perry: "#26c6da",          // medium teal (Perry)
+  Doofenshmirtz: "#7e57c2",  // softer dark purple
+  Isabella: "#ec407a",       // rich pink
+  Buford: "#827717",         // deep olive green
+  Baljeet: "#3949ab",        // strong blue-violet
+  Carl: "#42a5f5",           // nice sky blue
+  MajorMonogram: "#00897b",  // teal-green serious
+  Jeremy: "#fdd835",         // warm yellow
+  Lawrence: "#ab47bc",       // violet
+  Linda: "#8d6e63",          // soft brown
+  Stacy: "#26a69a",          // ✨ new: calm teal (fresh for Stacy)
+  Vanessa: "#9575cd",        // soft lavender-violet
+
+  // fallback
   default: "#4B8DF8"
 };
 
@@ -133,7 +142,6 @@ Promise.all(filePaths.map(path => d3.csv(path))).then(all => {
   renderChart();
 });
 
-
 function populateDropdowns(transcripts) {
   const uniqueCharacters = Array.from(
     new Set(
@@ -255,6 +263,10 @@ function populateDropdowns(transcripts) {
     }
   
     renderChart();
+    // 👇 this line ensures the word cloud updates too
+  if (typeof updateVisuals === "function") {
+    updateVisuals();
+  }
   });
   
 
@@ -282,18 +294,10 @@ function renderChart() {
   g.selectAll("*").remove();
 
   let displayData = dotData;
-
-  if (filterMajorOnly) {
-    displayData = displayData.filter(d => majorCharacters.has(d.character));
-  }
-  if (currentCharacter !== "all") {
-    displayData = displayData.filter(d => d.character === currentCharacter);
-  }
-  if (currentSeason !== "all") {
-    displayData = displayData.filter(d => d.season === +currentSeason);
-  }
-
-  const episodes = Array.from(
+  if (filterMajorOnly) displayData = displayData.filter(d => majorCharacters.has(d.character));
+  if (currentCharacter !== "all") displayData = displayData.filter(d => d.character === currentCharacter);
+  if (currentSeason !== "all") displayData = displayData.filter(d => d.season === +currentSeason);
+  const allEpisodes = Array.from(
     new Set(displayData.map(d => d.episodeIndex))
   ).sort((a, b) => {
     const [sa, ea] = a.slice(1).split("E").map(Number);
@@ -301,14 +305,13 @@ function renderChart() {
     return sa - sb || ea - eb;
   });
 
-  // Group episodes by season
-const seasonGroups = d3.groups(episodes, e => e.split("E")[0]); // "S1", "S2", ...
-
+  const seasonGroups = d3.groups(allEpisodes, e => e.split("E")[0]);
 
   const characters = Array.from(new Set(displayData.map(d => d.character))).sort();
-  const x = d3.scaleBand().domain(episodes).range([0, width]).padding(0.2);
+  const x = d3.scaleBand().domain(allEpisodes).range([0, width]).padding(0.2);
   const y = d3.scaleBand().domain(characters).range([0, height]).padding(0.1);
 
+  // X Axis
   g.append("g")
     .attr("transform", `translate(0,${height})`)
     .call(d3.axisBottom(x).tickFormat(d => d))
@@ -318,51 +321,60 @@ const seasonGroups = d3.groups(episodes, e => e.split("E")[0]); // "S1", "S2", .
     .attr("dy", "0.15em")
     .attr("transform", "rotate(-45)");
 
+  // Y Axis
   g.append("g").call(d3.axisLeft(y));
 
-  // Add season labels below the axis
-seasonGroups.forEach(([season, eps]) => {
-  const xMid = (x(eps[0]) + x(eps[eps.length - 1])) / 2;
-  g.append("text")
-    .attr("x", xMid)
-    .attr("y", height + 50)
-    .attr("text-anchor", "middle")
-    .style("font-size", "12px")
-    .style("font-weight", "bold")
-    .text(season);
-});
+  // Background season bands
+  seasonGroups.forEach(([season, eps], i) => {
+    const xStart = x(eps[0]);
+    const xEnd = x(eps[eps.length - 1]);
+    const widthBand = xEnd - xStart + x.bandwidth();
 
-  // Add background bands for each season
-seasonGroups.forEach(([season, eps], i) => {
-  const xStart = x(eps[0]);
-  const xEnd = x(eps[eps.length - 1]);
-  const widthBand = xEnd - xStart;
+    g.append("rect")
+      .attr("x", xStart - 10)
+      .attr("y", 0)
+      .attr("width", widthBand + 20)
+      .attr("height", height)
+      .attr("fill", i % 2 === 0 ? "#f9f9f9" : "#e9e9e9")
+      .lower();
+  });
 
-  g.append("rect")
-    .attr("x", xStart - 10)
-    .attr("y", 0)
-    .attr("width", widthBand + 20)
-    .attr("height", height)
-    .attr("fill", i % 2 === 0 ? "#f9f9f9" : "#e9e9e9")
-    .lower(); // Send it behind everything
-});
+  // Season labels
+  seasonGroups.forEach(([season, eps]) => {
+    const xMid = (x(eps[0]) + x(eps[eps.length - 1])) / 2;
+    g.append("text")
+      .attr("x", xMid)
+      .attr("y", height + 50)
+      .attr("text-anchor", "middle")
+      .style("font-size", "12px")
+      .style("font-weight", "bold")
+      .text(season);
+  });
 
-
+  // Circles
   g.selectAll("circle")
     .data(displayData)
     .join(
       enter => enter.append("circle")
-        .attr("cx", d => (x(d.episodeIndex)?? 0) + x.bandwidth() / 2)
+        .attr("cx", d => (x(d.episodeIndex) ?? 0) + x.bandwidth() / 2)
         .attr("cy", d => y(d.character) + y.bandwidth() / 2)
         .attr("r", 0)
         .attr("fill", d => characterColors[d.character] || characterColors.default)
         .attr("opacity", 0.8)
         .on("mouseover", function (event, d) {
+          d3.selectAll("circle").transition().duration(200).style("opacity", 0.3);
+          d3.select(this).transition().duration(200)
+            .attr("r", d => currentMetric === "lines" ? Math.sqrt(d[currentMetric]) * 1.4 : Math.sqrt(d[currentMetric]) * 0.5)
+            .attr("stroke", "grey")
+            .attr("stroke-width", 2)
+            .style("opacity", 0.8);
           d3.select("#tooltip")
             .style("display", "block")
             .html(`
               <strong>${d.character}</strong><br>
-              S${d.season}E${d.episode.toString().padStart(2, '0')} • ${d[currentMetric] || 0} ${currentMetric}
+              Season: ${d.season}<br>
+              Episode: ${d.episode.toString().padStart(2, '0')}<br>
+              ${d[currentMetric] || 0} ${currentMetric}
             `);
         })
         .on("mousemove", function (event) {
@@ -370,49 +382,79 @@ seasonGroups.forEach(([season, eps], i) => {
             .style("left", (event.pageX + 15) + "px")
             .style("top", (event.pageY - 30) + "px");
         })
-        .on("mouseout", () => {
+        .on("mouseout", function () {
+          d3.selectAll("circle").transition().duration(200).style("opacity", 0.8);
+          d3.select(this).transition().duration(200)
+            .attr("r", d => currentMetric === "lines" ? Math.sqrt(d[currentMetric]) * 1.4 : Math.sqrt(d[currentMetric]) * 0.5)
+            .attr("stroke", "none");
           d3.select("#tooltip").style("display", "none");
         })
         .transition()
         .duration(600)
-        .attr("r", d => Math.sqrt(d[currentMetric]) * 0.5),
-
+        .attr("r", d => currentMetric === "lines" ? Math.sqrt(d[currentMetric]) * 1.4 : Math.sqrt(d[currentMetric]) * 0.5),
+      
       update => update,
       exit => exit.transition().duration(400).attr("r", 0).remove()
     );
 }
 
+
 // Replay button
+// d3.select("#replayBtn").on("click", () => {
+//   let index = 0;
+//   const sortedDots = dotData
+//     .filter(d => (currentSeason === "all" || d.season === +currentSeason) &&
+//                  (currentCharacter === "all" || d.character === currentCharacter) &&
+//                  (!filterMajorOnly || majorCharacters.has(d.character)))
+//     .sort((a, b) => {
+//       const sa = +a.season, sb = +b.season;
+//       const ea = +a.episode, eb = +b.episode;
+//       return sa - sb || ea - eb;
+//     });
+
+//   const visibleCircles = d3.selectAll("circle").attr("opacity", 0.05);
+
+//   const interval = setInterval(() => {
+//     if (index >= sortedDots.length) {
+//       clearInterval(interval);
+//       return;
+//     }
+
+//     const d = sortedDots[index];
+//     d3.selectAll("circle")
+//       .filter(cd => cd.character === d.character && cd.episodeIndex === d.episodeIndex)
+//       .transition().duration(300)
+//       .attr("opacity", 1)
+//       .attr("r", Math.sqrt(d[currentMetric]) * 0.6);
+
+//     index++;
+//   }, 80);
+// });
+
+
+
 d3.select("#replayBtn").on("click", () => {
-  let index = 0;
-  const sortedDots = dotData
-    .filter(d => (currentSeason === "all" || d.season === +currentSeason) &&
-                 (currentCharacter === "all" || d.character === currentCharacter) &&
-                 (!filterMajorOnly || majorCharacters.has(d.character)))
-    .sort((a, b) => {
-      const sa = +a.season, sb = +b.season;
-      const ea = +a.episode, eb = +b.episode;
-      return sa - sb || ea - eb;
-    });
+  // Reset everything
+  currentCharacter = "all";
+  d3.select("#characterSelect").property("value", "all");
 
-  const visibleCircles = d3.selectAll("circle").attr("opacity", 0.05);
+  currentSeason = "all";
+  d3.select("#seasonSelect").property("value", "all");
 
-  const interval = setInterval(() => {
-    if (index >= sortedDots.length) {
-      clearInterval(interval);
-      return;
-    }
+  currentMetric = "words"; // ✅ Reset metric to default
+  d3.select("#metricSelect").property("value", "words"); // ✅ Reset dropdown too
 
-    const d = sortedDots[index];
-    d3.selectAll("circle")
-      .filter(cd => cd.character === d.character && cd.episodeIndex === d.episodeIndex)
-      .transition().duration(300)
-      .attr("opacity", 1)
-      .attr("r", Math.sqrt(d[currentMetric]) * 0.6);
+  filterMajorOnly = false; // ✅ Turn off major characters filter
+  d3.select("#majorOnlyToggle").property("checked", false); // ✅ Uncheck toggle
 
-    index++;
-  }, 80);
+  d3.select("#characterSearch").property("value", ""); // Clear search input
+
+  renderChart(); // 🎯 Re-render fresh
+
+  d3.select("#characterSelect").property("value", "Phineas");
+  updateVisuals(); // 🎯 Update word cloud
 });
+
 
 
 d3.select("#compareBtn").on("click", () => {
@@ -489,6 +531,9 @@ function switchView(view) {
   if (view === "textAnalysis" && !textAnalysisInitialized) {
     initTextAnalysis();
     textAnalysisInitialized = true;
+  }
+  if (view === "timeline") {
+    renderChart(); // Refresh timeline!
   }
 }
 

@@ -379,3 +379,43 @@ footer {
 #closeModal:hover {
   background: #315fbd;
 }
+
+/* HOME BUTTON */
+#homeButton {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #e6194b, #f58231, #3cb44b, #46f0f0, #911eb4);
+  background-size: 300% 300%;
+  color: white;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: 'Gloria Hallelujah', cursive;
+  border: none;
+  border-radius: 50px;
+  text-decoration: none;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+  transition: all 0.5s ease;
+  animation: moveGradient 8s ease infinite, bounceIn 0.8s ease forwards;
+  z-index: 1000;
+}
+
+#homeButton:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+/* Moving gradient animation */
+@keyframes moveGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Soft bounce on page load */
+@keyframes bounceIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); }
+}
