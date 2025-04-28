@@ -594,3 +594,90 @@ footer {
     display: none;
   }
   
+ /* === Bar Chart View === */
+#bustBarChartView {
+  display: none; /* Hide by default */
+  background-color: #ffffff; /* white background */
+  padding: 1.5rem; /* Add padding */
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  max-width: 100%;
+  height: auto;
+}
+
+#bustBarChartView.active {
+  display: block; /* Show when active */
+}
+
+#bustBarChart {
+  width: 100%;
+  height: 400px; /* Adjust the height of the bar chart */
+  border-radius: 8px;
+  background: #f4f7fa; /* Light background */
+  border: 2px solid #e5e7eb;
+  margin-top: 20px;
+  transition: all 0.3s ease-in-out;
+}
+
+#bustBarTooltip {
+  position: absolute;
+  background-color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#bustBarChartView h2 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #333;
+  text-align: center;
+  font-weight: bold;
+}
+
+#tileContainerWrapper {
+  position: relative;
+  width: 100%;
+  height: 80%; /* Ensure this doesn't push the axis */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#tileContainer {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr); /* 4 columns for each season */
+  gap: 20px; /* Space between tiles */
+  padding: 20px;
+  height: 100%; /* Allow grid to fill container */
+  margin-bottom: 40px; /* Space for the X-axis */
+}
+
+.tile {
+  background-color: #4C9DE1;
+  color: white;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+  height: 150px;
+}
+
+.x-axis {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  display: block;
+}
+

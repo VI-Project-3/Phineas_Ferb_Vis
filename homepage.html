@@ -87,6 +87,11 @@
           Bust Bubble Chart
         </button>   
       </div>
+      <div class="button-group">
+        <button onclick="switchView('bustBarChart')" class="data-btn">
+          Bar Chart
+        </button>   
+      </div>
     </aside>
 
     <!-- Main Panel -->
@@ -149,6 +154,13 @@
         <svg id="bustBubble"></svg>
         <div id="bustTooltip"></div>
       </section>
+      <section id="bustBarChartView" class="card view-section" style="display: none;">
+        <h2>Character Interaction Bar Chart</h2>
+        <!-- <svg id="bustBarChart"></svg> -->
+        <div id="bustBarTooltip"></div>
+        <!-- Add the tile container here -->
+        <div id="tileContainer"></div>
+      </section>
 
     </main>
   </div>
@@ -158,8 +170,9 @@
   </footer>
 
   
-  <script src="js/bustChart.js"></script>
-  <script src="js/bustExpandableBubble.js"></script>
+  <!-- <script src="js/bustChart.js"></script> -->
+  <!-- <script src="js/bustExpandableBubble.js"></script> -->
+  <script src="js/bustBarChart.js"></script>
   <script src="js/script.js"></script>
   
   <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.min.js"></script>

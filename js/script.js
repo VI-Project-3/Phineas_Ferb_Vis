@@ -35,26 +35,26 @@ let currentCharacter = "all";
 let filterMajorOnly = false;
 let currentMetric = "words";
 let majorCharacters = new Set();
-let bustAttemptsPerEpisode = {};
+// let bustAttemptsPerEpisode = {};
 
 
 Promise.all(filePaths.map(path => d3.csv(path))).then(all => {
   let transcripts = all.flat();
 
   transcripts.forEach(d => {
-    if (d.speaker === "Candace" && d.line) {
-      const lowerLine = d.line.toLowerCase();
+    // if (d.speaker === "Candace" && d.line) {
+    //   const lowerLine = d.line.toLowerCase();
   
-      if (lowerLine.includes("mom") || 
-          lowerLine.includes("phineas and ferb") || 
-          lowerLine.includes("come and see") ||
-          lowerLine.includes("look what they're doing")) {
+    //   if (lowerLine.includes("mom") || 
+    //       lowerLine.includes("phineas and ferb") || 
+    //       lowerLine.includes("come and see") ||
+    //       lowerLine.includes("look what they're doing")) {
         
-        const epKey = `S${d.season}E${d.episode.toString().padStart(2, '0')}`;
+    //     const epKey = `S${d.season}E${d.episode.toString().padStart(2, '0')}`;
   
-        bustAttemptsPerEpisode[epKey] = (bustAttemptsPerEpisode[epKey] || 0) + 1;
-      }
-    }
+    //     bustAttemptsPerEpisode[epKey] = (bustAttemptsPerEpisode[epKey] || 0) + 1;
+    //   }
+    // }
 
     d.season = parseInt(d.season);
     d.episode = parseInt(d.episode);
@@ -395,10 +395,10 @@ function renderChart() {
               Episode: ${d.episode.toString().padStart(2, '0')}<br>
               ${d[currentMetric] || 0} ${currentMetric}
             `);
-            if(d.character === "Candace"){
-              const attempts = bustAttemptsPerEpisode[d.episodeIndex] || 0;
-              updateBustMeter(attempts);
-            }
+            // if(d.character === "Candace"){
+            //   const attempts = bustAttemptsPerEpisode[d.episodeIndex] || 0;
+            //   updateBustMeter(attempts);
+            // }
 
         })
         .on("mousemove", function (event) {
@@ -546,7 +546,7 @@ d3.select("#replayDuoBtn").on("click", () => {
 let textAnalysisInitialized = false;
 
 function switchView(view) {
-  const views = ['timelineView', 'textAnalysisView', 'bustExpandableBubbleView'];
+  const views = ['timelineView', 'textAnalysisView', 'bustExpandableBubbleView', 'bustBarChartView'];
   views.forEach(id => {
     document.getElementById(id).style.display = (id === view + 'View') ? 'block' : 'none';
   });
@@ -559,19 +559,22 @@ function switchView(view) {
   if (view === "timeline") {
     renderChart(); // Refresh timeline!
   }
-  if (view === "bustExpandableBubble") {
-    initBustExpandableBubbleChart(); // Refresh bust bubble chart!
+  // if (view === "bustExpandableBubble") {
+  //   initBustExpandableBubbleChart(); // Refresh bust bubble chart!
+  // }
+  if (view === "bustBarChart") {
+    initTileLayout(); // Refresh bust bar chart!
   }
 }
 
-initBustMeter(); // 🔥 Draw the initial bust meter
-updateBustMeter(0); // start at 0%
+// initBustMeter(); // 🔥 Draw the initial bust meter
+// updateBustMeter(0); // start at 0%
 
-function initBustBubbleChart() {
-  const bustData = Object.entries(bustAttemptsPerEpisode).map(([episode, attempts]) => ({
-    episode,
-    attempts
-  }));
+// function initBustBubbleChart() {
+//   const bustData = Object.entries(bustAttemptsPerEpisode).map(([episode, attempts]) => ({
+//     episode,
+//     attempts
+//   }));
 
-  renderBustBubbleChart(bustData);
-}
+//   renderBustBubbleChart(bustData);
+// }
