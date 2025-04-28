@@ -522,3 +522,75 @@ footer {
     cursor: pointer;
   }
   
+  #episodeSidebar {
+    position: fixed;
+    top: 0;
+    right: -460px; /* slide out */
+    width: 400px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2); /* MORE transparent */
+    backdrop-filter: blur(15px); /* Stronger blur for "frosted glass" */
+    -webkit-backdrop-filter: blur(15px); /* Safari support */
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3); /* deeper shadow */
+    padding: 30px;
+    transition: right 0.4s cubic-bezier(0.77, 0, 0.175, 1), background-color 0.3s ease;
+    overflow-y: auto;
+    z-index: 9999;
+    border-left: 3px solid rgba(75, 141, 248, 0.6); /* soft border color */
+    color: #333; /* text color */
+  }
+  
+  #episodeSidebar.active {
+    right: 0;
+  }
+  
+  
+  #closeSidebar {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #f04a4a;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+  
+  #closeSidebar:hover {
+    background: #c0392b;
+  }
+  
+  #episodeSidebar h2 {
+    font-family: 'Gloria Hallelujah', cursive;
+    margin-top: 60px;
+    font-size: 26px;
+    color: #333;
+    text-align: center;
+  }
+  
+  #episodeSidebar p {
+    font-size: 16px;
+    margin: 20px 0;
+    color: #555;
+    line-height: 1.5;
+  }
+  .sidebar-image {
+    width: 100%;
+    height: auto;
+    max-width: 250px;
+    margin: 10px auto;
+    display: block;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  
+  /* If the image is broken, hide it nicely */
+  .sidebar-image:empty,
+  .sidebar-image[src=""],
+  .sidebar-image:not([src]) {
+    display: none;
+  }
+  
