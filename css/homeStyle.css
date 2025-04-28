@@ -419,3 +419,106 @@ footer {
   60% { transform: scale(1.2); opacity: 1; }
   100% { transform: scale(1); }
 }
+
+/* === BUST METER STYLES === */
+#bustMeterContainer {
+  background: linear-gradient(145deg, #f0f0f0, #ffffff);
+  box-shadow: 8px 8px 16px #d1d1d1,
+              -8px -8px 16px #ffffff;
+  padding: 30px;
+  border-radius: 30px;
+  max-width: 500px;
+  margin: 30px auto;
+}
+
+#bustMeter svg {
+  display: block;
+  margin: auto;
+}
+#bustMeter text {
+  font-family: 'Poppins', sans-serif;
+}
+
+#bustMeter line {
+  stroke-linecap: round;
+}
+
+#bustMeter path {
+  transition: all 0.5s ease;
+}
+
+/* Container styling */
+  #bustExpandableBubbleView {
+    background: linear-gradient(to top, #f0f8ff, #ffffff);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    margin: 20px auto;
+    max-width: 1000px;
+    text-align: center;
+  }
+
+  /* SVG full width and height */
+  #bustBubble {
+    width: 100%;
+    height: 400px;
+  }
+
+  /* Bubble (circle) styles */
+  .bubble {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    cursor: pointer;
+  }
+
+  /* Hover effect on bubbles */
+  .bubble:hover {
+    transform: scale(1.2);
+    opacity: 0.9;
+    stroke: #333;
+    stroke-width: 2px;
+  }
+
+  /* Tooltip (optional if you add later) */
+  .bustTooltip {
+    position: absolute;
+    background: #fff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    font-size: 14px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .popup {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+  }
+  
+  .popup-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    text-align: center;
+    max-width: 400px;
+    font-family: 'Gloria Hallelujah', cursive;
+  }
+  
+  .popup-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+  }
+  

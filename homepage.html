@@ -82,6 +82,11 @@
           📊 Analyze What Characters Say 
         </button>   
       </div>
+      <div class="button-group">
+        <button onclick="switchView('bustExpandableBubble')" class="data-btn">
+          Bust Bubble Chart
+        </button>   
+      </div>
     </aside>
 
     <!-- Main Panel -->
@@ -105,8 +110,16 @@
           </ul>
         </div>
       </section>
-      
-      <!-- View Container -->
+      <!-- <div id="bustMeter" style="width: 300px; height: 200px; margin-top: 40px;"></div> -->
+      <!-- <div id="bustMeterContainer">
+        <svg id="bustMeter" width="100%" height="250px"></svg>
+      </div> -->
+      <!-- Bust Bubble Chart Container -->
+<!-- <div id="bustBubbleContainer" style="width: 100%; max-width: 600px; margin: auto; padding-top: 20px;">
+  <svg id="bustBubbleChart"></svg>
+</div> -->
+
+<!-- View Container -->
     <section id="viewContainer">
       <!-- Timeline View -->
       <section id="timelineView" class="card view-section">
@@ -131,6 +144,12 @@
         </section>
       </section>
 
+      <section id="bustExpandableBubbleView" class="card view-section" style="display: none;">
+        <h2>Character Interaction Bubble Chart</h2>
+        <svg id="bustBubble"></svg>
+        <div id="bustTooltip"></div>
+      </section>
+
     </main>
   </div>
 
@@ -138,13 +157,20 @@
     <p>🛠️ Created for CS Visualization Project — Hosted on GitHub Pages</p>
   </footer>
 
+  
+  <script src="js/bustChart.js"></script>
+  <script src="js/bustExpandableBubble.js"></script>
   <script src="js/script.js"></script>
+  
   <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.min.js"></script>
 
 <canvas id="myCanvas" width="600" height="400"></canvas>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
 <script src="js/textanalysis.js"></script>
+
+
+
 
 <!-- Modal Popup -->
 <div id="modal" class="modal">
@@ -155,6 +181,17 @@
     <button id="closeModal">Close</button>
   </div>
 </div>
+
+<!-- Popup for Bust Attempts -->
+<div id="bustPopup" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+  <div style="background: white; padding: 20px 30px; border-radius: 10px; text-align: center; position: relative;">
+    <h2 id="bustPopupTitle" style="margin-top: 0;">Bust Attempts</h2>
+    <p id="bustPopupText" style="font-size: 18px; margin-bottom: 20px;">Loading...</p>
+    <button id="bustPopupClose" style="padding: 8px 16px; font-size: 16px; background: #f04a4a; color: white; border: none; border-radius: 6px; cursor: pointer;">Close</button>
+  </div>
+</div>
+
+
 
 
 
