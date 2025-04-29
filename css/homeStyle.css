@@ -95,6 +95,7 @@ header p {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  overflow: auto; /* Add scrolling if needed */
 }
 
 /* === CARD COMPONENTS === */
@@ -219,12 +220,22 @@ h2 {
 
 
 /* === LEGEND === */
-#legend {
+/* #legend {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   margin: 0.8rem 0;
   font-size: 0.9rem;
+} */
+/* === LEGEND === */
+#legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+  max-height: 60px;
+  overflow-y: auto;
 }
 
 #legend div {
@@ -238,7 +249,7 @@ h2 {
 }
 
 /* === TIMELINE CHART === */
-svg#timelineChart {
+/* svg#timelineChart {
   display: block;
   margin-top: 1rem;
   border: 2px solid #3cbcc3;
@@ -246,6 +257,26 @@ svg#timelineChart {
   width: 100%;
   height: auto;
   border-radius: 8px;
+} */
+/* === TIMELINE CHART === */
+svg#timelineChart {
+  display: block;
+  margin-top: 1rem;
+  border: 2px solid #3cbcc3;
+  background: #ffffff;
+  width: 100%;
+  max-width: 1500px;
+  height: 760px; /* Set a fixed larger height */
+  border-radius: 8px;
+  overflow: visible; /* Allow chart elements to extend beyond if needed */
+}
+@media (max-width: 1000px) {
+  /* ... other responsive styles ... */
+  
+  svg#timelineChart {
+    width: 100% !important;
+    height: 500px !important; /* Slightly smaller on mobile but still large */
+  }
 }
 
 /* === TOOLTIP === */
