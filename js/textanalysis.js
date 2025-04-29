@@ -21,64 +21,93 @@ function initTextAnalysis() {
   async function loadData() {
     const rawData = await Promise.all(filePaths.map(path => d3.csv(path)));
     allLines = rawData.flat().map(d => ({
-      season: +d.season,
-      episode: +d.episode,
-      speaker: d.speaker?.replace(/\(.*?\)/g, "").trim(),
-      line: d.line || ""
+        season: +d.season,
+        episode: +d.episode,
+        speaker: d.speaker?.replace(/\(.*?\)/g, "").trim(),
+        line: d.line || ""
     }));
-  
+
     // Only set to Phineas if nothing is selected yet
     const selectedCharacter = d3.select("#characterSelect").property("value");
     currentCharacter = selectedCharacter && selectedCharacter !== "all" ? selectedCharacter : "Phineas";
-    
+
     const selectedSeason = d3.select("#seasonSelect").property("value");
     currentSeason = selectedSeason && selectedSeason !== "all" ? selectedSeason : "all";
-  
+
     // Update dropdowns to reflect this choice
     d3.select("#characterSelect").property("value", currentCharacter);
     d3.select("#seasonSelect").property("value", currentSeason);
-  
+
+    updateEpisodeDropdown(); // Update episode dropdown after loading data
     updateVisuals();
+}
+
+// Function to update the episode dropdown based on the selected season
+function updateEpisodeDropdown() {
+  // Select the episode dropdown
+  const episodeSelect = document.getElementById("episodeSelect");
+
+  // Clear any existing options
+  episodeSelect.innerHTML = "";
+
+  // Add "All Episodes" option
+  let allEpisodesOption = document.createElement("option");
+  allEpisodesOption.value = "all";
+  allEpisodesOption.textContent = "All Episodes";
+  episodeSelect.appendChild(allEpisodesOption);
+
+  // Manually add 10 episodes
+  for (let i = 1; i <= 20; i++) {
+    let option = document.createElement("option");
+    option.value = i;
+    option.textContent = `Episode ${i}`;
+    episodeSelect.appendChild(option);
   }
-  
-  // 🔄 Reuse dropdown listeners
-  d3.select("#characterSelect").on("change.textAnalysis", updateVisuals);
-  d3.select("#seasonSelect").on("change.textAnalysis", updateVisuals);
+}
 
-  loadData(); // initial load
+// Event listeners for character, season, and episode changes
+d3.select("#characterSelect").on("change.textAnalysis", updateVisuals);
+d3.select("#seasonSelect").on("change.textAnalysis", function() {
+    loadData(); // Reload data when season changes
+});
+d3.select("#episodeSelect").on("change.textAnalysis", updateVisuals);
 
+loadData(); // Initial load
 
-  function updateVisuals() {
+function updateVisuals() {
     currentCharacter = d3.select("#characterSelect").property("value");
     currentSeason = d3.select("#seasonSelect").property("value");
+    const currentEpisode = d3.select("#episodeSelect").property("value");
 
+    // Filter data based on selected filters (character, season, episode)
     const filtered = allLines.filter(d =>
-      d.speaker === currentCharacter &&
-      (currentSeason === "all" || d.season === +currentSeason)
+        d.speaker === currentCharacter &&
+        (currentSeason === "all" || d.season === +currentSeason) &&
+        (currentEpisode === "all" || d.episode === +currentEpisode)
     );
 
     const allText = filtered.map(d => d.line.toLowerCase()).join(" ");
     const words = allText.match(/\b[\w']+\b/g) || [];
 
     const cleaned = words.filter(w => {
-      const word = w.replace(/[^a-zA-Z']/g, "");
-      return (
-        (word.length > 2 || allowedShortWords.has(word)) &&
-        !stopWords.has(word)
-      );
+        const word = w.replace(/[^a-zA-Z']/g, "");
+        return (
+            (word.length > 2 || allowedShortWords.has(word)) &&
+            !stopWords.has(word)
+        );
     });
 
     const wordFreq = d3.rollup(
-      cleaned,
-      v => v.length,
-      w => w
+        cleaned,
+        v => v.length,
+        w => w
     );
 
     const sortedWords = Array.from(wordFreq.entries()).sort((a, b) => b[1] - a[1]);
     renderWordCloud(sortedWords.slice(0, 50));
     renderBarChart(sortedWords.slice(0, 10));
     renderPhrases(filtered);
-  }
+}
   window.updateVisuals = updateVisuals;
 
   function renderWordCloud(data) {
@@ -110,48 +139,6 @@ function initTextAnalysis() {
 
   layout.start();
 
-  // function draw(words) {
-  //   d3.select("#wordCloud")
-  //     .append("svg")
-  //     .attr("width", width)
-  //     .attr("height", height)
-  //     .append("g")
-  //     .attr("transform", `translate(${width / 2},${height / 2})`)
-  //     .selectAll("text")
-  //     .data(words)
-  //     .enter().append("text")
-  //     .style("font-size", d => `${d.size}px`)
-  //     .style("fill", () => d3.schemeTableau10[Math.floor(Math.random() * 10)])
-  //     .attr("text-anchor", "middle")
-  //     .attr("transform", d => `translate(${d.x},${d.y})rotate(${d.rotate})`)
-  //     .text(d => d.text)
-  //     .style("cursor", "pointer")
-  //     .on("mouseover", function () {
-  //       d3.select(this)
-  //         .transition()
-  //         .duration(200)
-  //         .style("font-size", d => `${d.size * 1.2}px`)
-  //         .style("fill", "black");
-  //     })
-  //     .on("mouseout", function () {
-  //       d3.select(this)
-  //         .transition()
-  //         .duration(200)
-  //         .style("font-size", d => `${d.size}px`)
-  //         .style("fill", () => d3.schemeTableau10[Math.floor(Math.random() * 10)]);
-  //     })
-  //     .on("click", function (event, d) {
-  //       showPhrasesWithWord(d.text);
-      
-  //       // Remove highlight from all bars first
-  //       d3.selectAll("#barChart rect").attr("fill", "#4B8DF8");
-      
-  //       // Highlight the clicked word's bar
-  //       const wordClass = `.bar-${d.text.toLowerCase()}`;
-  //       d3.select(wordClass).attr("fill", "#FF8800");
-  //     });
-      
-  // }
   function draw(words) {
     const svgGroup = d3.select("#wordCloud")
       .append("svg")
@@ -267,52 +254,53 @@ function renderBarChart(data) {
     .style("pointer-events", "none")
     .style("opacity", 0);
 
+  // Get the current character's color from the characterColors object
+  const currentCharacterColor = characterColors[currentCharacter] || characterColors.default;
+
   // Bars
   svg.selectAll("rect")
-  .data(data)
-  .enter().append("rect")
-  .attr("y", d => y(d[0]))
-  .attr("x", 0)
-  .attr("height", y.bandwidth())
-  .attr("width", d => x(d[1]))
-  .attr("fill", "#4B8DF8")
-  .attr("class", d => `bar-${d[0].toLowerCase()}`)
-  .style("transition", "transform 0.3s ease, opacity 0.3s ease, fill 0.3s ease")
-  .on("mouseover", function (event, d) {
-    tooltip
-      .style("opacity", 1)
-      .html(`<strong>${d[0]}</strong>: ${d[1]} times`);
+    .data(data)
+    .enter().append("rect")
+    .attr("y", d => y(d[0]))
+    .attr("x", 0)
+    .attr("height", y.bandwidth())
+    .attr("width", d => x(d[1]))
+    .attr("fill", currentCharacterColor) // Use the character's color
+    .attr("class", d => `bar-${d[0].toLowerCase()}`)
+    .style("transition", "transform 0.3s ease, opacity 0.3s ease, fill 0.3s ease")
+    .on("mouseover", function (event, d) {
+      tooltip
+        .style("opacity", 1)
+        .html(`<strong>${d[0]}</strong>: ${d[1]} times`);
 
-    d3.selectAll("rect")
-      .transition()
-      .duration(200)
-      .style("opacity", 0.3)
-      .style("transform", "scale(1)");
+      d3.selectAll("rect")
+        .transition()
+        .duration(200)
+        .style("opacity", 0.3)
+        .style("transform", "scale(1)");
 
-    d3.select(this)
-      .transition()
-      .duration(200)
-      .style("opacity", 1)
-      .style("transform", "scale(1.05)")
-      .attr("fill", "#315fbd");
-  })
-  .on("mousemove", (event) => {
-    tooltip
-      .style("left", event.pageX + 15 + "px")
-      .style("top", event.pageY - 20 + "px");
-  })
-  .on("mouseout", function () {
-    tooltip.style("opacity", 0);
+      d3.select(this)
+        .transition()
+        .duration(200)
+        .style("opacity", 1)
+        .style("transform", "scale(1.05)")
+        .attr("fill", "#315fbd");
+    })
+    .on("mousemove", (event) => {
+      tooltip
+        .style("left", event.pageX + 15 + "px")
+        .style("top", event.pageY - 20 + "px");
+    })
+    .on("mouseout", function () {
+      tooltip.style("opacity", 0);
 
-    d3.selectAll("rect")
-      .transition()
-      .duration(200)
-      .style("opacity", 1)
-      .style("transform", "scale(1)")
-      .attr("fill", "#4B8DF8");
-  });
-
-
+      d3.selectAll("rect")
+        .transition()
+        .duration(200)
+        .style("opacity", 1)
+        .style("transform", "scale(1)")
+        .attr("fill", currentCharacterColor); // Reset to the character's color
+    });
 
   // Y-axis
   svg.append("g")
@@ -363,30 +351,5 @@ function renderPhrases(lines) {
     li.textContent = `"${phrase}..." — ${count} times`;
     ul.appendChild(li);
   });
-}
-
-function showPhrasesWithWord(word) {
-  const filtered = allLines.filter(d =>
-    d.speaker === currentCharacter &&
-    (currentSeason === "all" || d.season === +currentSeason)
-  );
-
-  const matching = filtered.filter(d =>
-    d.line.toLowerCase().includes(word.toLowerCase())
-  );
-
-  const phrases = matching.map(d => d.line.trim()).slice(0, 5);
-
-  const ul = document.getElementById("commonPhrases");
-  ul.innerHTML = "";
-  if (phrases.length === 0) {
-    ul.innerHTML = "<li>No matching phrases found.</li>";
-  } else {
-    phrases.forEach(p => {
-      const li = document.createElement("li");
-      li.textContent = `"${p}"`;
-      ul.appendChild(li);
-    });
-  }
 }
 }

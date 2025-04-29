@@ -20,7 +20,7 @@
   </div>
 
     <h1>Phineas and Ferb: Character Interaction Dashboard</h1>
-    <p>Track who speaks when, how often, and with whom – across every season.</p>
+    <!-- <p>Track who speaks when, how often, and with whom – across every season.</p> -->
   </header>
   
   <div class="dashboard">
@@ -81,7 +81,6 @@
           🎬 Episode Explorer
         </button>   
       </div>
-      <!-- Add this with your other view buttons in the sidebar -->
     <div class="button-group">
       <button onclick="switchView('barRace')" class="data-btn">
         🏁 Character Interaction Race
@@ -131,7 +130,12 @@
       <!-- Text Analysis View -->
       <section id="textAnalysisView" class="card view-section" style="display: none;">
         <h2>Word & Phrase Analysis</h2>
-      
+        <div class="control-block">
+          <label for="episodeSelect">Episode</label>
+          <select id="episodeSelect" style="width:30%;">
+              <option value="all">All Episodes</option>
+          </select>
+      </div>
         <div class="analysis-row">
           <div id="wordCloud" class="analysis-half"></div>
           <div id="barChart" class="analysis-half"></div>
@@ -148,7 +152,6 @@
         <div id="episodeGridContainer"></div>
       </section>
 
-      <!-- Add this with your other view sections -->
       <section id="barRaceView" class="card view-section" style="display: none;">
         <h2>Character Interaction Race</h2>
         <div class="controls">
@@ -196,7 +199,7 @@
   <div class="modal-content">
     <h2>Only Major Characters Allowed</h2>
     <p>Please select a major character. Here’s the list:</p>
-    <ul id="majorCharactersList"></ul> <!-- We'll populate this dynamically -->
+    <ul id="majorCharactersList"></ul> 
     <button id="closeModal">Close</button>
   </div>
 </div>
