@@ -12,7 +12,7 @@ const characterColors = {
   Jeremy: "#fdd835",         // warm yellow
   Lawrence: "#ab47bc",       // violet
   Linda: "#8d6e63",          // soft brown
-  Stacy: "#26a69a",          // ✨ new: calm teal (fresh for Stacy)
+  Stacy: "#26a69a",          // calm teal 
   Vanessa: "#9575cd",        // soft lavender-violet
 
   // fallback
@@ -274,13 +274,11 @@ function populateDropdowns(transcripts) {
         d3.select("#characterSelect").property("value", exactMatch);
       }
     } else {
-      // Don't immediately reset, just wait
       currentCharacter = "all";
       d3.select("#characterSelect").property("value", "all");
     }
   
     renderChart();
-    // 👇 this line ensures the word cloud updates too
   if (typeof updateVisuals === "function") {
     updateVisuals();
   }
@@ -435,15 +433,15 @@ d3.select("#replayBtn").on("click", () => {
   currentSeason = "all";
   d3.select("#seasonSelect").property("value", "all");
 
-  currentMetric = "words"; // ✅ Reset metric to default
-  d3.select("#metricSelect").property("value", "words"); // ✅ Reset dropdown too
+  currentMetric = "words";
+  d3.select("#metricSelect").property("value", "words"); 
 
-  filterMajorOnly = false; // ✅ Turn off major characters filter
-  d3.select("#majorOnlyToggle").property("checked", false); // ✅ Uncheck toggle
+  filterMajorOnly = false; 
+  d3.select("#majorOnlyToggle").property("checked", false); // Uncheck toggle
 
   d3.select("#characterSearch").property("value", ""); // Clear search input
 
-  renderChart(); // 🎯 Re-render fresh
+  renderChart(); // Re-render fresh
   switchView('timeline');
 
 });
@@ -551,7 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
   bar.classList.add('hidden');
 });
 
-// Character data - you can expand this with more characters
+// Character data 
 const charactersData = [
   {
     name: "Phineas Flynn",
@@ -644,7 +642,6 @@ function showCharacterCards() {
   // Clear previous content
   characterGrid.innerHTML = '';
   
-  // Add each character to the grid
   charactersData.forEach(character => {
     const characterItem = document.createElement('div');
     characterItem.className = 'character-item';
@@ -687,13 +684,11 @@ function setupCharacterButton() {
 setupCharacterButton();
 
 
-// Add these variables at the top with your other chart variables
+
 let barRaceData = [];
 let currentFrame = 0;
 let raceInterval;
 let isPlaying = false;
-
-// Add this new function
 
 function initBarRace() {
   // Prepare cumulative data - accumulate totals up to each episode
@@ -727,11 +722,15 @@ function initBarRace() {
     }
   });
 
-  // Set up the chart container
-  const container = d3.select("#barRaceChart");
+  // Set up the chart container as a flex column
+  const container = d3.select("#barRaceChart")
+    .style("display", "flex")
+    .style("flex-direction", "column")
+    .style("position", "relative");  
+  
   container.selectAll("*").remove();
   
-  // Add play controls
+
   d3.select("#playRace").on("click", playRace);
   d3.select("#pauseRace").on("click", pauseRace);
   d3.select("#resetRace").on("click", resetRace);
@@ -746,54 +745,83 @@ function updateBarRace(frameIndex) {
 
   // Update time display
   d3.select("#currentSeason").text(frameData.season);
-  d3.select("#currentEpisode").text(frameData.episode.toString().padStart(2, '0'));
+  d3.select("#currentEpisode").text(String(frameData.episode).padStart(2, "0"));
 
-  const container = d3.select("#barRaceChart");
-  const maxValue = d3.max(frameData.characters, d => d.value);
+  const container = d3.select("#barRaceChart")
+    .style("display", "flex")
+    .style("flex-direction", "column");
+
+  const maxVal = d3.max(frameData.characters, d => d.value);
   const widthScale = d3.scaleLinear()
-    .domain([0, maxValue])
+    .domain([0, maxVal])
     .range([0, container.node().clientWidth - 200]);
 
-  // Join data with bars
+  // DATA JOIN
   const bars = container.selectAll(".bar-race-bar")
     .data(frameData.characters, d => d.name);
 
-  // Exit old bars
+  // EXIT
   bars.exit()
-    .transition()
-    .duration(300)
-    .style("width", "0px")
+    .transition().duration(300)
+      .style("width", "0px")
     .remove();
 
-  // Enter new bars
+  // ENTER
   const barsEnter = bars.enter()
     .append("div")
-    .attr("class", "bar-race-bar")
-    .style("background", d => characterColors[d.name] || characterColors.default)
-    .style("width", "2px");
+      .attr("class", "bar-race-bar")
+      .style("position", "relative")
+      .style("padding-right", "50px")
+      .style("margin", "4px 0")
+      .style("background", d => characterColors[d.name] || characterColors.default)
+      .style("width", "2px")
+      .style("order", d => -d.value);
 
-  // Add content to new bars
   barsEnter.append("span")
-    .attr("class", "character-name")
-    .text(d => d.name);
-    
-  barsEnter.append("span")
-    .attr("class", "value")
-    .text(d => d.value);
+      .attr("class", "character-name")
+      .text(d => d.name)
+      .style("margin-right", "8px");
 
-  // Update all bars (existing + new)
-  bars.merge(barsEnter)
-    .transition()
-    .duration(500)
-    .style("width", d => `${widthScale(d.value)}px`)
-    .style("background", d => characterColors[d.name] || characterColors.default);
+  barsEnter.append("span")
+      .attr("class", "value")
+      .text(d => d.value)
+      .style("position", "absolute")
+      .style("left", "100%")
+      .style("margin-left", "8px")
+      .style("top", "50%")
+      .style("transform", "translateY(-50%)");
+
+  const barsAll = barsEnter.merge(bars);
+
+  barsAll.select(".character-name").text(d => d.name);
+  barsAll.select(".value").text(d => d.value);
+
+  // clear any ongoing transforms
+  barsAll.interrupt().style("transform", "translateY(0px)");
+
+  barsAll.each(function(d) {
+    d._startY = this.getBoundingClientRect().top;
+  });
 
   
-  bars.select(".character-name")
-    .text(d => d.name);
-    
-  bars.select(".value")
-    .text(d => d.value);
+  barsAll.sort((a, b) => b.value - a.value)
+         .style("order", d => -d.value);
+
+ 
+  barsAll.each(function(d) {
+    d._endY = this.getBoundingClientRect().top;
+  });
+
+  barsAll.style("transform", d =>
+    `translateY(${d._startY - d._endY}px)`
+  );
+
+  const speed = parseInt(d3.select("#speedControl").property("value"), 10);
+  barsAll.transition()
+    .duration(speed)  // Duration based on your speed control
+    .ease(d3.easeCubic) // Smooth easing function
+    .style("transform", "translateY(0px)") // Move bars to their final position
+    .style("width", d => `${widthScale(d.value)}px`);  // Adjust the width based on value
 }
 
 
@@ -808,23 +836,18 @@ function resetRace() {
   updateBarRace(currentFrame);
 }
 
-
-// Update playRace function
 function playRace() {
   if (isPlaying) return;
   isPlaying = true;
-  const speed = parseInt(d3.select("#speedControl").property("value"));
+  const speed = parseInt(d3.select("#speedControl").property("value"), 10);
   
   raceInterval = setInterval(() => {
     currentFrame = (currentFrame + 1) % barRaceData.length;
     updateBarRace(currentFrame);
-    
-    if (currentFrame === barRaceData.length - 1) {
-      pauseRace();
-    }
+    if (currentFrame === barRaceData.length - 1) pauseRace();
   }, speed);
 }
-// Add to initBarRace()
+
 const visibleCharacters = filterMajorOnly ? 
   Array.from(majorCharacters) : 
   Array.from(new Set(dotData.map(d => d.character)));
