@@ -515,7 +515,7 @@ d3.select("#replayDuoBtn").on("click", () => {
 let textAnalysisInitialized = false;
 
 function switchView(view) {
-  const views = ['timelineView', 'textAnalysisView', 'episodeGridView'];
+  const views = ['timelineView', 'textAnalysisView', 'episodeGridView', 'barRaceView'];
   views.forEach(id => {
     document.getElementById(id).style.display = (id === view + 'View') ? 'block' : 'none';
   });
@@ -529,6 +529,9 @@ function switchView(view) {
   }
   if (view === "episodeGrid") {
     initEpisodeGridView();
+  }
+  if (view === "barRace") {
+    initBarRace();
   }
 }
 
@@ -682,3 +685,147 @@ function setupCharacterButton() {
 
 // Set up the character button
 setupCharacterButton();
+
+
+// Add these variables at the top with your other chart variables
+let barRaceData = [];
+let currentFrame = 0;
+let raceInterval;
+let isPlaying = false;
+
+// Add this new function
+
+function initBarRace() {
+  // Prepare cumulative data - accumulate totals up to each episode
+  const characterTotals = new Map();
+  barRaceData = [];
+  
+  // Sort all episodes chronologically
+  const sortedEpisodes = [...dotData]
+    .sort((a, b) => a.season - b.season || a.episode - b.episode);
+  
+  // Process each episode to build cumulative totals
+  sortedEpisodes.forEach(episode => {
+    const { character, season, episode: epNum, episodeIndex, words, lines } = episode;
+    const value = currentMetric === "words" ? words : lines;
+    
+    // Update cumulative totals for this character
+    const currentTotal = characterTotals.get(character) || 0;
+    characterTotals.set(character, currentTotal + value);
+    
+    // Only record data at the end of each episode
+    if (!barRaceData.some(d => d.episodeIndex === episodeIndex)) {
+      barRaceData.push({
+        season,
+        episode: epNum,
+        episodeIndex,
+        characters: Array.from(characterTotals.entries())
+          .map(([name, total]) => ({ name, value: total }))
+          .sort((a, b) => b.value - a.value)
+          .slice(0, 10) // Top 10 characters
+      });
+    }
+  });
+
+  // Set up the chart container
+  const container = d3.select("#barRaceChart");
+  container.selectAll("*").remove();
+  
+  // Add play controls
+  d3.select("#playRace").on("click", playRace);
+  d3.select("#pauseRace").on("click", pauseRace);
+  d3.select("#resetRace").on("click", resetRace);
+
+  // Show first frame
+  updateBarRace(0);
+}
+
+function updateBarRace(frameIndex) {
+  const frameData = barRaceData[frameIndex];
+  if (!frameData) return;
+
+  // Update time display
+  d3.select("#currentSeason").text(frameData.season);
+  d3.select("#currentEpisode").text(frameData.episode.toString().padStart(2, '0'));
+
+  const container = d3.select("#barRaceChart");
+  const maxValue = d3.max(frameData.characters, d => d.value);
+  const widthScale = d3.scaleLinear()
+    .domain([0, maxValue])
+    .range([0, container.node().clientWidth - 200]);
+
+  // Join data with bars
+  const bars = container.selectAll(".bar-race-bar")
+    .data(frameData.characters, d => d.name);
+
+  // Exit old bars
+  bars.exit()
+    .transition()
+    .duration(300)
+    .style("width", "0px")
+    .remove();
+
+  // Enter new bars
+  const barsEnter = bars.enter()
+    .append("div")
+    .attr("class", "bar-race-bar")
+    .style("background", d => characterColors[d.name] || characterColors.default)
+    .style("width", "2px");
+
+  // Add content to new bars
+  barsEnter.append("span")
+    .attr("class", "character-name")
+    .text(d => d.name);
+    
+  barsEnter.append("span")
+    .attr("class", "value")
+    .text(d => d.value);
+
+  // Update all bars (existing + new)
+  bars.merge(barsEnter)
+    .transition()
+    .duration(500)
+    .style("width", d => `${widthScale(d.value)}px`)
+    .style("background", d => characterColors[d.name] || characterColors.default);
+
+  
+  bars.select(".character-name")
+    .text(d => d.name);
+    
+  bars.select(".value")
+    .text(d => d.value);
+}
+
+
+function pauseRace() {
+  clearInterval(raceInterval);
+  isPlaying = false;
+}
+
+function resetRace() {
+  pauseRace();
+  currentFrame = 0;
+  updateBarRace(currentFrame);
+}
+
+
+// Update playRace function
+function playRace() {
+  if (isPlaying) return;
+  isPlaying = true;
+  const speed = parseInt(d3.select("#speedControl").property("value"));
+  
+  raceInterval = setInterval(() => {
+    currentFrame = (currentFrame + 1) % barRaceData.length;
+    updateBarRace(currentFrame);
+    
+    if (currentFrame === barRaceData.length - 1) {
+      pauseRace();
+    }
+  }, speed);
+}
+// Add to initBarRace()
+const visibleCharacters = filterMajorOnly ? 
+  Array.from(majorCharacters) : 
+  Array.from(new Set(dotData.map(d => d.character)));
+

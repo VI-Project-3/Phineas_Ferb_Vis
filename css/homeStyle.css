@@ -1258,3 +1258,70 @@ button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
+
+/* Bar Race Styles */
+#barRaceChart {
+  width: 100%;
+  height: 600px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bar-race-bar {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  margin: 5px 0;
+  transition: all 0.3s ease;
+  position: relative;
+  border-radius: 4px;
+  font-family: 'Gloria Hallelujah', cursive;
+}
+
+.bar-race-bar .character-name {
+  position: absolute;
+  left: 10px;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  z-index: 2;
+}
+
+.bar-race-bar .value {
+  position: absolute;
+  right: 10px;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  z-index: 2;
+}
+
+.time-display {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-top: 10px;
+  color: #3cbcc3;
+  font-weight: bold;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.controls button {
+  padding: 8px 15px;
+  background: #3cbcc3;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'Gloria Hallelujah', cursive;
+  transition: all 0.2s;
+}
+
+.controls button:hover {
+  background: #2da8af;
+  transform: scale(1.05);
+}
