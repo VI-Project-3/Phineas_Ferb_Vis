@@ -684,7 +684,6 @@ function setupCharacterButton() {
 setupCharacterButton();
 
 
-
 let barRaceData = [];
 let currentFrame = 0;
 let raceInterval;
@@ -762,21 +761,27 @@ function updateBarRace(frameIndex) {
 
   // EXIT
   bars.exit()
-    .transition().duration(300)
-      .style("width", "0px")
-    .remove();
+    .transition()
+    .duration(300)
+    .style("opacity", 0)
+    .style("width", "0px")
+   .remove();
 
   // ENTER
   const barsEnter = bars.enter()
     .append("div")
-      .attr("class", "bar-race-bar")
-      .style("position", "relative")
-      .style("padding-right", "50px")
-      .style("margin", "4px 0")
-      .style("background", d => characterColors[d.name] || characterColors.default)
-      .style("width", "2px")
-      .style("order", d => -d.value);
-
+    .attr("class", "bar-race-bar")
+    .style("position", "absolute")
+    .style("height", "30px")
+    .style("margin", "5px 0")
+    .style("background", d => characterColors[d.name] || characterColors.default)
+    .style("width", "0px") // Start at 0 width
+    .style("left", "0")
+    .style("top", (d, i) => `${i * 35}px`)
+    .style("opacity", 0)
+    .style("display", "flex")
+    .style("align-items", "center")
+    .style("border-radius", "4px");
   barsEnter.append("span")
       .attr("class", "character-name")
       .text(d => d.name)
@@ -799,29 +804,31 @@ function updateBarRace(frameIndex) {
   // clear any ongoing transforms
   barsAll.interrupt().style("transform", "translateY(0px)");
 
-  barsAll.each(function(d) {
-    d._startY = this.getBoundingClientRect().top;
-  });
+  // MERGE enter and update selections
+  const barsUpdate = barsEnter.merge(bars);
 
-  
-  barsAll.sort((a, b) => b.value - a.value)
-         .style("order", d => -d.value);
-
- 
-  barsAll.each(function(d) {
-    d._endY = this.getBoundingClientRect().top;
-  });
-
-  barsAll.style("transform", d =>
-    `translateY(${d._startY - d._endY}px)`
-  );
-
+  // Update all elements
   const speed = parseInt(d3.select("#speedControl").property("value"), 10);
-  barsAll.transition()
-    .duration(speed)  // Duration based on your speed control
-    .ease(d3.easeCubic) // Smooth easing function
-    .style("transform", "translateY(0px)") // Move bars to their final position
-    .style("width", d => `${widthScale(d.value)}px`);  // Adjust the width based on value
+
+  // Calculate new positions based on sorted data
+  const sortedData = frameData.characters.sort((a, b) => b.value - a.value);
+  const yPositions = {};
+  sortedData.forEach((d, i) => {
+    yPositions[d.name] = i * 35;
+  });
+
+  // Animate to new positions (vertical movement and width change)
+  barsUpdate.transition()
+    .duration(speed)
+    .ease(d3.easeCubic)
+    .style("opacity", 1)
+    .style("width", d => `${widthScale(d.value)}px`)  // Correct width scaling
+    .style("top", d => `${yPositions[d.name]}px`)  // Correct positioning based on rank
+    .style("z-index", d => sortedData.findIndex(c => c.name === d.name));
+
+  // Update text values
+  barsUpdate.select(".character-name").text(d => d.name);
+  barsUpdate.select(".value").text(d => d.value);
 }
 
 
@@ -851,4 +858,3 @@ function playRace() {
 const visibleCharacters = filterMajorOnly ? 
   Array.from(majorCharacters) : 
   Array.from(new Set(dotData.map(d => d.character)));
-
