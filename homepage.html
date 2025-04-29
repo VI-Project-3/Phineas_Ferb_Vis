@@ -10,6 +10,7 @@
 <body>
   <a href="index.html" id="homeButton">🏠 Home</a>
   <header>
+    <br>
     <h1>Phineas and Ferb: Character Interaction Dashboard</h1>
     <p>Track who speaks when, how often, and with whom – across every season.</p>
   </header>
@@ -96,25 +97,33 @@
 
     <!-- Main Panel -->
     <main class="main-content">
-      <!-- Top Overview -->
-      <section id="overview" class="card overview">
-        <div class="overview-section">
-          <h3>Show Overview</h3>
-          <ul>
-            <li><strong>Title:</strong> Phineas and Ferb</li>
-            <li><strong>Genre:</strong> Animated Comedy / Sci-Fi</li>
-            <li><strong>Platform:</strong> Disney Channel</li>
-          </ul>
-        </div>
-        <div class="overview-section">
-          <h3>Stats</h3>
-          <ul>
-            <li><strong>Run:</strong> 2007–2015</li>
-            <li><strong>Episodes:</strong> 222</li>
-            <li><strong>Analyzed:</strong> Seasons 1–4</li>
-          </ul>
-        </div>
-      </section>
+  <!-- Toggle Button always visible -->
+  <div id="overviewToggleContainer">
+    <button id="toggleOverview">Show Overview ▼</button>
+  </div>
+
+  <!-- The overlay panel we show/hide -->
+  <header id="overviewBar" class="overview-bar">
+    <div id="overviewContent" class="overview-content">
+      <div class="overview-column">
+        <h3>Show Overview</h3>
+        <ul>
+          <li><strong>Title:</strong> Phineas and Ferb</li>
+          <li><strong>Genre:</strong> Animated Comedy / Sci-Fi</li>
+          <li><strong>Episodes:</strong> 222</li>
+          <li><strong>Seasons:</strong> 1 - 4</li>
+          <li><strong>Creators:</strong> Dan Povenmire &amp; Jeff “Swampy” Marsh</li>
+          <li><strong>Production:</strong> Disney Television Animation</li>
+          <li><strong>Original run:</strong> August 17 2007 – June 12 2015</li>
+          <li><strong>Country:</strong> United States</li>
+          <li><strong>Language:</strong> English</li>
+          <li><strong>Premise:</strong> Two step-brothers invent wild gadgets and embark on epic backyard adventures each summer day—while their sister, Candace, tries (and fails) to bust them.</li>
+          <li><strong>Theme Song:</strong> “Today Is Gonna Be a Great Day”</li>
+          <li><strong>Legacy:</strong> Earned multiple Emmy nominations and inspired a feature-length film, <em>Candace Against the Universe</em>.</li>
+        </ul>
+      </div>
+  </header>
+
       <!-- <div id="bustMeter" style="width: 300px; height: 200px; margin-top: 40px;"></div> -->
       <!-- <div id="bustMeterContainer">
         <svg id="bustMeter" width="100%" height="250px"></svg>

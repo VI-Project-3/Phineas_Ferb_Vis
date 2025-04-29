@@ -578,3 +578,20 @@ function switchView(view) {
 
 //   renderBustBubbleChart(bustData);
 // }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const bar = document.getElementById('overviewBar');
+  const btn = document.getElementById('toggleOverview');
+
+  btn.addEventListener('click', () => {
+    if (bar.classList.toggle('hidden')) {
+      btn.textContent = 'Show Overview ▼';
+    } else {
+      btn.textContent = 'Hide Overview ▲';
+    }
+  });
+
+  // start closed
+  bar.classList.add('hidden');
+});
+
