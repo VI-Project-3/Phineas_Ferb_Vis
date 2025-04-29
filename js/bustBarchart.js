@@ -57,1187 +57,96 @@ function initTileLayout() {
   });
 }
 
-// Draw the Tile Layout
 // function drawTileLayout() {
-//   const tileContainer = document.getElementById("tileContainer");
-  
-//   if (!tileContainer) {
-//     console.error("#tileContainer not found");
-//     return; // Exit if the element doesn't exist
-//   }
+//     const tileContainer = document.getElementById("tileContainer");
 
-//   // Assuming bustBubbleRootData contains the real data
-//   const tileWidth = 150;
-//   const tileHeight = 150;
+//     if (!tileContainer) {
+//         console.error("#tileContainer not found");
+//         return; // Exit if the element doesn't exist
+//     }
 
-//   // Clear the existing tiles
-//   tileContainer.innerHTML = '';
+//     // Get the container width and height dynamically
+//     const containerWidth = tileContainer.offsetWidth;
+//     const containerHeight = tileContainer.offsetHeight;
 
-//   // Create and append each tile with real data
-//   bustBubbleRootData.forEach(season => {
-//     season.children.forEach(episode => {
-//       const tile = document.createElement('div');
-//       tile.classList.add('tile');
-//       tile.innerHTML = `
-//         <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
+//     const tileWidth = 150;
+//     const tileHeight = 150;
+
+//     // Clear the existing tiles
+//     tileContainer.innerHTML = '';
+
+//     // Limit to 10 episodes per season
+//     const maxEpisodesPerSeason = 40;
+
+//     // Calculate the max number of episodes in any season (for yScale)
+//     const maxEpisodes = Math.min(
+//         Math.max(...bustBubbleRootData.map(season => season.children.length)),
+//         maxEpisodesPerSeason
+//     );
+
+//     // Set up scales for positioning the tiles
+//     const xScale = d3.scaleBand()
+//         .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
+//         .range([0, containerWidth])  // Scale across container width
+//         .padding(0.15);  // Increased padding between the seasons (space between tiles horizontally)
+
+//     const yScale = d3.scaleBand()
+//         .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically (limit to 10 episodes max)
+//         .range([0, containerHeight - 40])  // Adjust the Y range to leave space for the X-axis at the bottom
+//         .padding(10);  // Increased padding between the episodes (space between tiles vertically)
+
+//     // Loop over the seasons and their episodes to create tiles
+//     bustBubbleRootData.forEach(season => {
+//         const seasonContainer = document.createElement('div');
+//         seasonContainer.classList.add('season-container');
         
-//       `;
 
-//       // Add a click event to the tile to open the sidebar
-//       tile.addEventListener('click', () => openSidebar(episode));
+//         // Create a container for each season to hold its episodes
+//         season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
+//             const tile = document.createElement('div');
+//             tile.classList.add('tile');
+//             tile.innerHTML = `
+//                 <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
+//             `;
 
-//       tileContainer.appendChild(tile);
+            
+
+//             // Add a click event to the tile to open the sidebar
+//             tile.addEventListener('click', () => openSidebar(episode));
+
+//             seasonContainer.appendChild(tile);
+//         });
+//         // Inside drawTileLayout(), right after:
+// // const seasonContainer = document.createElement('div');
+// seasonContainer.style.display     = 'flex';
+// seasonContainer.style.flexWrap    = 'wrap';
+// seasonContainer.style.gap         = '16px';   // horizontal & vertical gap between tiles
+// seasonContainer.style.marginBottom= '24px';   // space between seasons
+
+
+//         // Append the season container to the tileContainer
+//         tileContainer.appendChild(seasonContainer);
 //     });
-//   });
-// }
-// Draw the Tile Layout
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
+// // … right after your tiles are appended and xScale is in scope …
+
+// // 1. Create a <svg> for the axis, absolutely positioned at the bottom
+// const axisSvg = d3.select('#tileContainer')
+//   .append('svg')
+//     .attr('width', containerWidth)
+//     .attr('height', 40)
+//     .style('position', 'absolute')
+//     .style('left', '0px')
+//     .style('bottom', '0px');
+
+// // 2. Add a bottom‐axis using the same xScale
+// axisSvg.append('g')
+//     .attr('transform', 'translate(0, 20)')   // push down to center it in the 40px tall svg
+//     .call(
+//       d3.axisBottom(xScale)
+//         .tickFormat((d, i) => `Season ${i + 1}`)
+//     );
+
     
-//     if (!tileContainer) {
-//       console.error("#tileContainer not found");
-//       return; // Exit if the element doesn't exist
-//     }
-  
-//     // Assuming bustBubbleRootData contains the real data
-//     const tileWidth = 150;
-//     const tileHeight = 150;
-  
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-  
-//     // Calculate the max number of episodes in any season
-//     const maxEpisodes = Math.max(...bustBubbleRootData.map(season => season.children.length));
-  
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//       .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//       .range([0, tileContainer.offsetWidth]) // Scale across container width
-//       .padding(0.1); // Some padding between the seasons
-  
-//     const yScale = d3.scaleBand()
-//       .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically
-//       .range([0, tileContainer.offsetHeight]) // Scale across container height
-//       .padding(0.1); // Some padding between the episodes
-  
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//       season.children.forEach(episode => {
-//         const tile = document.createElement('div');
-//         tile.classList.add('tile');
-//         tile.innerHTML = `
-//           <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-          
-//         `;
-  
-//         // Set the position of each tile using xScale (Season) and yScale (Episode)
-//         tile.style.position = "absolute";
-//         tile.style.left = `${xScale(season.id)}px`; // Position based on season
-//         tile.style.top = `${yScale(episode.id.slice(3))}px`; // Position based on episode number
-  
-//         // Add a click event to the tile to open the sidebar
-//         tile.addEventListener('click', () => openSidebar(episode));
-  
-//         tileContainer.appendChild(tile);
-//       });
-//     });
-//   }
-  
-// Draw the Tile Layout
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-  
-//     if (!tileContainer) {
-//       console.error("#tileContainer not found");
-//       return; // Exit if the element doesn't exist
-//     }
-  
-//     // Assuming bustBubbleRootData contains the real data
-//     const tileWidth = 150;
-//     const tileHeight = 150;
-  
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-  
-//     // Calculate the max number of episodes in any season
-//     const maxEpisodes = Math.max(...bustBubbleRootData.map(season => season.children.length));
-  
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//       .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//       .range([0, tileContainer.offsetWidth]) // Scale across container width
-//       .padding(0.1); // Some padding between the seasons
-  
-//     const yScale = d3.scaleBand()
-//       .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically
-//       .range([0, tileContainer.offsetHeight]) // Scale across container height
-//       .padding(0.1); // Some padding between the episodes
-  
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//       season.children.forEach(episode => {
-//         const tile = document.createElement('div');
-//         tile.classList.add('tile');
-//         tile.innerHTML = `
-//           <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-          
-//         `;
-  
-//         // Set the position of each tile using xScale (Season) and yScale (Episode)
-//         tile.style.position = "absolute";
-//         tile.style.left = `${xScale(season.id)}px`; // Position based on season
-//         tile.style.top = `${yScale(episode.id.slice(3))}px`; // Position based on episode number
-  
-//         // Add a click event to the tile to open the sidebar
-//         tile.addEventListener('click', () => openSidebar(episode));
-  
-//         tileContainer.appendChild(tile);
-//       });
-//     });
-//   }
-
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-
-//     if (!tileContainer) {
-//       console.error("#tileContainer not found");
-//       return; // Exit if the element doesn't exist
-//     }
-
-//     // Get the container width and height dynamically
-//     const containerWidth = tileContainer.offsetWidth;
-//     const containerHeight = tileContainer.offsetHeight;
-
-//     const tileWidth = 150;
-//     const tileHeight = 150;
-
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-
-//     // Calculate the max number of episodes in any season
-//     const maxEpisodes = Math.max(...bustBubbleRootData.map(season => season.children.length));
-
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//       .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//       .range([0, containerWidth])  // Scale across container width
-//       .padding(0.1);  // Padding between the seasons
-
-//     const yScale = d3.scaleBand()
-//       .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically
-//       .range([0, containerHeight])  // Scale across container height
-//       .padding(0.1);  // Padding between the episodes
-
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//       season.children.forEach(episode => {
-//         const tile = document.createElement('div');
-//         tile.classList.add('tile');
-//         tile.innerHTML = `
-//           <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-//         `;
-
-//         // Set the position of each tile using xScale (Season) and yScale (Episode)
-//         tile.style.position = "absolute";
-//         tile.style.left = `${xScale(season.id)}px`; // Position based on season
-//         tile.style.top = `${yScale(episode.id.slice(3))}px`; // Position based on episode number
-
-//         // Add a click event to the tile to open the sidebar
-//         tile.addEventListener('click', () => openSidebar(episode));
-
-//         tileContainer.appendChild(tile);
-//       });
-//     });
-
-//     // Now, let's add the X axis (season numbers)
-//     const svg = d3.select(tileContainer)
-//                   .append('svg')
-//                   .attr('width', containerWidth)
-//                   .attr('height', 40)  // Height for the axis
-//                   .style('position', 'absolute')
-//                   .style('bottom', 0)  // Place at the bottom of the tile container
-//                   .style('left', 0);
-
-//     const xAxis = d3.axisBottom(xScale)
-//                     .tickFormat((d, i) => `Season ${i + 1}`);  // Display 'Season 1', 'Season 2', etc.
-
-//     svg.append('g')
-//        .attr('class', 'x-axis')
-//        .attr('transform', `translate(0, 20)`)  // Adjust vertical positioning slightly
-//        .call(xAxis);
-// }
-
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-
-//     if (!tileContainer) {
-//       console.error("#tileContainer not found");
-//       return; // Exit if the element doesn't exist
-//     }
-
-//     // Get the container width and height dynamically
-//     const containerWidth = tileContainer.offsetWidth;
-//     const containerHeight = tileContainer.offsetHeight;
-
-//     const tileWidth = 150;
-//     const tileHeight = 150;
-
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-
-//     // Limit to 10 episodes per season
-//     const maxEpisodesPerSeason = 10;
-
-//     // Calculate the max number of episodes in any season (for yScale)
-//     const maxEpisodes = Math.min(
-//         Math.max(...bustBubbleRootData.map(season => season.children.length)),
-//         maxEpisodesPerSeason
-//     );
-
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//       .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//       .range([0, containerWidth])  // Scale across container width
-//       .padding(0.1);  // Padding between the seasons
-
-//     const yScale = d3.scaleBand()
-//       .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically (limit to 10 episodes max)
-//       .range([0, containerHeight])  // Scale across container height
-//       .padding(0.1);  // Padding between the episodes
-
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//       season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
-//         const tile = document.createElement('div');
-//         tile.classList.add('tile');
-//         tile.innerHTML = `
-//           <div class="tile-title">Episode ${episode.id.slice(3)}</div>
-//         `;
-
-//         // Set the position of each tile using xScale (Season) and yScale (Episode)
-//         tile.style.position = "absolute";
-//         tile.style.left = `${xScale(season.id)}px`; // Position based on season
-//         tile.style.top = `${yScale(parseInt(episode.id.slice(3)))}px`; // Position based on episode number
-
-//         // Add a click event to the tile to open the sidebar
-//         tile.addEventListener('click', () => openSidebar(episode));
-
-//         tileContainer.appendChild(tile);
-//       });
-//     });
-
-//     // Now, let's add the X axis (season numbers)
-//     const svg = d3.select(tileContainer)
-//                   .append('svg')
-//                   .attr('width', containerWidth)
-//                   .attr('height', 40)  // Height for the axis
-//                   .style('position', 'absolute')
-//                   .style('bottom', 0)  // Place at the bottom of the tile container
-//                   .style('left', 0);
-
-//     const xAxis = d3.axisBottom(xScale)
-//                     .tickFormat((d, i) => `Season ${i + 1}`);  // Display 'Season 1', 'Season 2', etc.
-
-//     svg.append('g')
-//        .attr('class', 'x-axis')
-//        .attr('transform', `translate(0, 20)`)  // Adjust vertical positioning slightly
-//        .call(xAxis);
-// }
-// Draw the Tile Layout
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-
-//     if (!tileContainer) {
-//         console.error("#tileContainer not found");
-//         return; // Exit if the element doesn't exist
-//     }
-
-//     // Get the container width and height dynamically
-//     const containerWidth = tileContainer.offsetWidth;
-//     const containerHeight = tileContainer.offsetHeight;
-
-//     const tileWidth = 150;
-//     const tileHeight = 150;
-
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-
-//     // Limit to 10 episodes per season
-//     const maxEpisodesPerSeason = 10;
-
-//     // Calculate the max number of episodes in any season (for yScale)
-//     const maxEpisodes = Math.min(
-//         Math.max(...bustBubbleRootData.map(season => season.children.length)),
-//         maxEpisodesPerSeason
-//     );
-
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//         .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//         .range([0, containerWidth])  // Scale across container width
-//         .padding(0.5);  // Padding between the seasons
-
-//     const yScale = d3.scaleBand()
-//         .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically (limit to 10 episodes max)
-//         .range([0, containerHeight])  // Scale across container height
-//         .padding(12);  // Padding between the episodes
-
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//         season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
-//             const tile = document.createElement('div');
-//             tile.classList.add('tile');
-//             tile.innerHTML = `
-//                 <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-//                 <div class="tile-content">Bust Attempts: ${episode.bustAttempts}</div>
-//             `;
-
-//             // Set the position of each tile using xScale (Season) and yScale (Episode)
-//             tile.style.position = "absolute";
-//             tile.style.left = `${xScale(season.id)}px`; // Position based on season
-//             tile.style.top = `${yScale(parseInt(episode.id.slice(3)))}px`; // Position based on episode number
-
-//             // Add a click event to the tile to open the sidebar
-//             tile.addEventListener('click', () => openSidebar(episode));
-
-//             tileContainer.appendChild(tile);
-//         });
-//     });
-
-//     // Now, let's add the X axis (season numbers)
-//     const svg = d3.select(tileContainer)
-//                   .append('svg')
-//                   .attr('width', containerWidth)
-//                   .attr('height', 40)  // Height for the axis
-//                   .style('position', 'absolute')
-//                   .style('bottom', 0)  // Place at the bottom of the tile container
-//                   .style('left', 0);
-
-//     const xAxis = d3.axisBottom(xScale)
-//                     .tickFormat((d, i) => `Season ${i + 1}`);  // Display 'Season 1', 'Season 2', etc.
-
-//     svg.append('g')
-//        .attr('class', 'x-axis')
-//        .attr('transform', `translate(0, 20)`)  // Adjust vertical positioning slightly
-//        .call(xAxis);
-
-// }
-
-// Draw the Tile Layout
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-
-//     if (!tileContainer) {
-//         console.error("#tileContainer not found");
-//         return; // Exit if the element doesn't exist
-//     }
-
-//     // Get the container width and height dynamically
-//     const containerWidth = tileContainer.offsetWidth;
-//     const containerHeight = tileContainer.offsetHeight;
-
-//     const tileWidth = 150;
-//     const tileHeight = 150;
-
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-
-//     // Limit to 10 episodes per season
-//     const maxEpisodesPerSeason = 10;
-
-//     // Calculate the max number of episodes in any season (for yScale)
-//     const maxEpisodes = Math.min(
-//         Math.max(...bustBubbleRootData.map(season => season.children.length)),
-//         maxEpisodesPerSeason
-//     );
-
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//         .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//         .range([0, containerWidth])  // Scale across container width
-//         .padding(0.15);  // Increased padding between the seasons (space between tiles horizontally)
-
-//     const yScale = d3.scaleBand()
-//         .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically (limit to 10 episodes max)
-//         .range([0, containerHeight])  // Scale across container height
-//         .padding(0.25);  // Increased padding between the episodes (space between tiles vertically)
-
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//         season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
-//             const tile = document.createElement('div');
-//             tile.classList.add('tile');
-//             tile.innerHTML = `
-//                 <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-//                 <div class="tile-content">Bust Attempts: ${episode.bustAttempts}</div>
-//             `;
-
-//             // Set the position of each tile using xScale (Season) and yScale (Episode)
-//             tile.style.position = "absolute";
-//             tile.style.left = `${xScale(season.id)}px`; // Position based on season
-//             tile.style.top = `${yScale(parseInt(episode.id.slice(3)))}px`; // Position based on episode number
-//             tile.style.margin = '10px';  // Margin to give space around each tile
-
-//             // Add a click event to the tile to open the sidebar
-//             tile.addEventListener('click', () => openSidebar(episode));
-
-//             tileContainer.appendChild(tile);
-//         });
-//     });
-
-//     // Now, let's add the X axis (season numbers)
-//     const svg = d3.select(tileContainer)
-//                   .append('svg')
-//                   .attr('width', containerWidth)
-//                   .attr('height', 40)  // Height for the axis
-//                   .style('position', 'absolute')
-//                   .style('bottom', 0)  // Place at the bottom of the tile container
-//                   .style('left', 0);
-
-//     const xAxis = d3.axisBottom(xScale)
-//                     .tickFormat((d, i) => `Season ${i + 1}`);  // Display 'Season 1', 'Season 2', etc.
-
-//     svg.append('g')
-//        .attr('class', 'x-axis')
-//        .attr('transform', `translate(0, 20)`)  // Adjust vertical positioning slightly
-//        .call(xAxis);
-// }
-
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-
-//     if (!tileContainer) {
-//         console.error("#tileContainer not found");
-//         return; // Exit if the element doesn't exist
-//     }
-
-//     // Get the container width and height dynamically
-//     const containerWidth = tileContainer.offsetWidth;
-//     const containerHeight = tileContainer.offsetHeight;
-
-//     const tileWidth = 150;
-//     const tileHeight = 150;
-
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-
-//     // Limit to 10 episodes per season
-//     const maxEpisodesPerSeason = 10;
-
-//     // Calculate the max number of episodes in any season (for yScale)
-//     const maxEpisodes = Math.min(
-//         Math.max(...bustBubbleRootData.map(season => season.children.length)),
-//         maxEpisodesPerSeason
-//     );
-
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//         .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//         .range([0, containerWidth])  // Scale across container width
-//         .padding(0.15);  // Increased padding between the seasons (space between tiles horizontally)
-
-//     const yScale = d3.scaleBand()
-//         .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically (limit to 10 episodes max)
-//         .range([2, containerHeight])  // Scale across container height
-//         .padding(15);  // Increased padding between the episodes (space between tiles vertically)
-
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//         season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
-//             const tile = document.createElement('div');
-//             tile.classList.add('tile');
-//             tile.innerHTML = `
-//                 <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-//                 <div class="tile-content">Bust Attempts: ${episode.bustAttempts}</div>
-//             `;
-
-//             // Set the position of each tile using xScale (Season) and yScale (Episode)
-//             tile.style.position = "absolute";
-//             tile.style.left = `${xScale(season.id)}px`; // Position based on season
-//             tile.style.top = `${yScale(parseInt(episode.id.slice(3)))}px`; // Position based on episode number
-//             tile.style.margin = '10px';  // Margin to give space around each tile
-
-//             // Add a click event to the tile to open the sidebar
-//             tile.addEventListener('click', () => openSidebar(episode));
-
-//             tileContainer.appendChild(tile);
-//         });
-//     });
-
-//     // Now, let's add the X axis (season numbers)
-//     const svg = d3.select(tileContainer)
-//                   .append('svg')
-//                   .attr('width', containerWidth)
-//                   .attr('height', 40)  // Height for the axis
-//                   .style('position', 'absolute')
-//                   .style('bottom', 0)  // Place at the bottom of the tile container
-//                   .style('left', 0);
-
-//     const xAxis = d3.axisBottom(xScale)
-//                     .tickFormat((d, i) => `Season ${i + 1}`);  // Display 'Season 1', 'Season 2', etc.
-
-//     svg.append('g')
-//        .attr('class', 'x-axis')
-//        .attr('transform', `translate(0, 20)`)  // Adjust vertical positioning slightly
-//        .call(xAxis);
-// }
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-
-//     if (!tileContainer) {
-//         console.error("#tileContainer not found");
-//         return; // Exit if the element doesn't exist
-//     }
-
-//     // Get the container width and height dynamically
-//     const containerWidth = tileContainer.offsetWidth;
-//     const containerHeight = tileContainer.offsetHeight;
-
-//     const tileWidth = 150;
-//     const tileHeight = 150;
-
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-
-//     // Limit to 10 episodes per season
-//     const maxEpisodesPerSeason = 10;
-
-//     // Calculate the max number of episodes in any season (for yScale)
-//     const maxEpisodes = Math.min(
-//         Math.max(...bustBubbleRootData.map(season => season.children.length)),
-//         maxEpisodesPerSeason
-//     );
-
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//         .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//         .range([0, containerWidth])  // Scale across container width
-//         .padding(0.15);  // Increased padding between the seasons (space between tiles horizontally)
-
-//     const yScale = d3.scaleBand()
-//         .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically (limit to 10 episodes max)
-//         .range([0, containerHeight])  // Scale across container height
-//         .padding(10);  // Increased padding between the episodes (space between tiles vertically)
-
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//         season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
-//             const tile = document.createElement('div');
-//             tile.classList.add('tile');
-//             tile.innerHTML = `
-//                 <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-                
-//             `;
-
-//             // Set the position of each tile using xScale (Season) and yScale (Episode)
-//             tile.style.position = "absolute";
-//             tile.style.left = `${xScale(season.id)}px`; // Position based on season
-//             tile.style.top = `${yScale(parseInt(episode.id.slice(3)))}px`; // Position based on episode number
-//             tile.style.margin = '10px';  // Margin to give space around each tile
-
-//             // Add a click event to the tile to open the sidebar
-//             tile.addEventListener('click', () => openSidebar(episode));
-
-//             tileContainer.appendChild(tile);
-//         });
-//     });
-
-//     // Now, let's add the X axis (season numbers)
-//     const svg = d3.select(tileContainer)
-//                   .append('svg')
-//                   .attr('width', containerWidth)
-//                   .attr('height', 40)  // Height for the axis
-//                   .style('position', 'absolute')
-//                   .style('bottom', 0)  // Place at the bottom of the tile container
-//                   .style('left', 0);
-
-//     const xAxis = d3.axisBottom(xScale)
-//                     .tickFormat((d, i) => `Season ${i + 1}`);  // Display 'Season 1', 'Season 2', etc.
-
-//     svg.append('g')
-//        .attr('class', 'x-axis')
-//        .attr('transform', `translate(0, 20)`)  // Adjust vertical positioning slightly
-//        .call(xAxis);
-// }
-
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-
-//     if (!tileContainer) {
-//         console.error("#tileContainer not found");
-//         return; // Exit if the element doesn't exist
-//     }
-
-//     // Get the container width and height dynamically
-//     const containerWidth = tileContainer.offsetWidth;
-//     const containerHeight = tileContainer.offsetHeight;
-
-//     const tileWidth = 150;
-//     const tileHeight = 150;
-
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-
-//     // Limit to 10 episodes per season
-//     const maxEpisodesPerSeason = 10;
-
-//     // Calculate the max number of episodes in any season (for yScale)
-//     const maxEpisodes = Math.min(
-//         Math.max(...bustBubbleRootData.map(season => season.children.length)),
-//         maxEpisodesPerSeason
-//     );
-
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//         .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//         .range([0, containerWidth])  // Scale across container width
-//         .padding(0.15);  // Padding between the seasons (space between tiles horizontally)
-
-//     const yScale = d3.scaleBand()
-//         .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically (limit to 10 episodes max)
-//         .range([0, containerHeight])  // Scale across container height
-//         .padding(0.15);  // Padding between the episodes (space between tiles vertically)
-
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//         season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
-//             const tile = document.createElement('div');
-//             tile.classList.add('tile');
-//             tile.innerHTML = `
-//                 <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-//             `;
-
-//             // Set the position of each tile using xScale (Season) and yScale (Episode)
-//             tile.style.position = "absolute";
-//             tile.style.left = `${xScale(season.id)}px`; // Position based on season
-//             tile.style.top = `${yScale(parseInt(episode.id.slice(3)))}px`; // Position based on episode number
-
-//             // Add a click event to the tile to open the sidebar
-//             tile.addEventListener('click', () => openSidebar(episode));
-
-//             tileContainer.appendChild(tile);
-//         });
-//     });
-
-//     // Now, let's add the X axis (season numbers)
-//     const svg = d3.select(tileContainer)
-//                   .append('svg')
-//                   .attr('width', containerWidth)
-//                   .attr('height', 40)  // Height for the axis
-//                   .style('position', 'absolute')
-//                   .style('bottom', 0)  // Place at the bottom of the tile container
-//                   .style('left', 0);
-
-//     const xAxis = d3.axisBottom(xScale)
-//                     .tickFormat((d, i) => `Season ${i + 1}`);  // Display 'Season 1', 'Season 2', etc.
-
-//     svg.append('g')
-//        .attr('class', 'x-axis')
-//        .attr('transform', `translate(0, 20)`)  // Adjust vertical positioning slightly
-//        .call(xAxis);
-// }
-
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-
-//     if (!tileContainer) {
-//         console.error("#tileContainer not found");
-//         return; // Exit if the element doesn't exist
-//     }
-
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-
-//     // Limit to 10 episodes per season
-//     const maxEpisodesPerSeason = 10;
-
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//         season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
-//             const tile = document.createElement('div');
-//             tile.classList.add('tile');
-//             tile.innerHTML = `
-//                 <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-//             `;
-
-//             // Add a click event to the tile to open the sidebar
-//             tile.addEventListener('click', () => openSidebar(episode));
-
-//             tileContainer.appendChild(tile);
-//         });
-//     });
-
-//     // Add the X axis (season numbers)
-//     const svg = d3.select(tileContainer)
-//                   .append('svg')
-//                   .attr('width', tileContainer.offsetWidth)
-//                   .attr('height', 40)  // Height for the axis
-//                   .style('position', 'absolute')
-//                   .style('bottom', 0)  // Place at the bottom of the tile container
-//                   .style('left', 0);
-
-//     const xAxis = d3.axisBottom(d3.scaleBand().domain(["S1", "S2", "S3", "S4"]).range([0, tileContainer.offsetWidth]));
-
-//     svg.append('g')
-//        .attr('class', 'x-axis')
-//        .attr('transform', `translate(0, 20)`)  // Adjust vertical positioning slightly
-//        .call(xAxis);
-// }
-
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-
-//     if (!tileContainer) {
-//         console.error("#tileContainer not found");
-//         return; // Exit if the element doesn't exist
-//     }
-
-//     // Get the container width and height dynamically
-//     const containerWidth = tileContainer.offsetWidth;
-//     const containerHeight = tileContainer.offsetHeight;
-
-//     const tileWidth = 150;
-//     const tileHeight = 150;
-
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-
-//     // Limit to 10 episodes per season
-//     const maxEpisodesPerSeason = 10;
-
-//     // Calculate the max number of episodes in any season (for yScale)
-//     const maxEpisodes = Math.min(
-//         Math.max(...bustBubbleRootData.map(season => season.children.length)),
-//         maxEpisodesPerSeason
-//     );
-
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//         .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//         .range([0, containerWidth])  // Scale across container width
-//         .padding(0.15);  // Increased padding between the seasons (space between tiles horizontally)
-
-//     const yScale = d3.scaleBand()
-//         .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically (limit to 10 episodes max)
-//         .range([0, containerHeight])  // Scale across container height
-//         .padding(10);  // Increased padding between the episodes (space between tiles vertically)
-
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//         season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
-//             const tile = document.createElement('div');
-//             tile.classList.add('tile');
-//             tile.innerHTML = `
-//                 <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-//             `;
-
-//             // Add a click event to the tile to open the sidebar
-//             tile.addEventListener('click', () => openSidebar(episode));
-
-//             tileContainer.appendChild(tile);
-//         });
-//     });
-
-//     // Add the X axis (season numbers)
-//     const svg = d3.select(tileContainer)
-//                   .append('svg')
-//                   .attr('width', containerWidth)
-//                   .attr('height', 40)  // Height for the axis
-//                   .attr('class', 'x-axis')
-//                   .style('position', 'absolute')
-//                   .style('bottom', '0px')  // Place at the bottom of the tile container
-//                   .style('left', '0');
-
-//     const xAxis = d3.axisBottom(d3.scaleBand().domain(["S1", "S2", "S3", "S4"]).range([0, containerWidth]));
-
-//     svg.append('g')
-//        .attr('class', 'x-axis')
-//        .attr('transform', `translate(0, 20)`)  // Adjust vertical positioning slightly
-//        .call(xAxis);
-// }
-
-
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-
-//     if (!tileContainer) {
-//         console.error("#tileContainer not found");
-//         return; // Exit if the element doesn't exist
-//     }
-
-//     // Get the container width and height dynamically
-//     const containerWidth = tileContainer.offsetWidth;
-//     const containerHeight = tileContainer.offsetHeight;
-
-//     const tileWidth = 150;
-//     const tileHeight = 150;
-
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-
-//     // Limit to 10 episodes per season
-//     const maxEpisodesPerSeason = 10;
-
-//     // Calculate the max number of episodes in any season (for yScale)
-//     const maxEpisodes = Math.min(
-//         Math.max(...bustBubbleRootData.map(season => season.children.length)),
-//         maxEpisodesPerSeason
-//     );
-
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//         .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//         .range([0, containerWidth])  // Scale across container width
-//         .padding(0.15);  // Increased padding between the seasons (space between tiles horizontally)
-
-//     const yScale = d3.scaleBand()
-//         .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically (limit to 10 episodes max)
-//         .range([0, containerHeight])  // Scale across container height
-//         .padding(10);  // Increased padding between the episodes (space between tiles vertically)
-
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//         season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
-//             const tile = document.createElement('div');
-//             tile.classList.add('tile');
-//             tile.innerHTML = `
-//                 <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-//             `;
-
-//             // Add a click event to the tile to open the sidebar
-//             tile.addEventListener('click', () => openSidebar(episode));
-
-//             tileContainer.appendChild(tile);
-//         });
-//     });
-
-//     // Add the X axis (season numbers)
-//     const svg = d3.select(tileContainer)
-//                   .append('svg')
-//                   .attr('width', containerWidth)
-//                   .attr('height', 40)  // Height for the axis
-//                   .attr('class', 'x-axis')
-//                   .style('position', 'relative')
-//                   .style('bottom', '0px')  // Place at the bottom of the tile container
-//                   .style('left', '0');
-
-//     const xAxis = d3.axisBottom(d3.scaleBand().domain(["S1", "S2", "S3", "S4"]).range([0, containerWidth]));
-
-//     svg.append('g')
-//        .attr('class', 'x-axis')
-//        .attr('transform', `translate(0, 20)`)  // Adjust vertical positioning slightly
-//        .call(xAxis);
-// }
-
-
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-
-//     if (!tileContainer) {
-//         console.error("#tileContainer not found");
-//         return; // Exit if the element doesn't exist
-//     }
-
-//     // Get the container width and height dynamically
-//     const containerWidth = tileContainer.offsetWidth;
-//     const containerHeight = tileContainer.offsetHeight;
-
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-
-//     // Limit to 10 episodes per season
-//     const maxEpisodesPerSeason = 10;
-
-//     // Calculate the max number of episodes in any season (for yScale)
-//     const maxEpisodes = Math.min(
-//         Math.max(...bustBubbleRootData.map(season => season.children.length)),
-//         maxEpisodesPerSeason
-//     );
-
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//         .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//         .range([0, containerWidth])  // Scale across container width
-//         .padding(0.15);  // Padding between the seasons
-
-//     const yScale = d3.scaleBand()
-//         .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically (limit to 10 episodes max)
-//         .range([0, containerHeight])  // Scale across container height
-//         .padding(10);  // Padding between the episodes
-
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//         const seasonContainer = document.createElement('div');
-//         seasonContainer.classList.add('season-container');
-
-//         // Create a container for each season to hold its episodes
-//         season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
-//             const tile = document.createElement('div');
-//             tile.classList.add('tile');
-//             tile.innerHTML = `
-//                 <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-//             `;
-
-//             // Add a click event to the tile to open the sidebar
-//             tile.addEventListener('click', () => openSidebar(episode));
-
-//             seasonContainer.appendChild(tile);
-//         });
-
-//         // Append the season container to the tileContainer
-//         tileContainer.appendChild(seasonContainer);
-//     });
-
-//     // Now, let's add the X axis (season numbers)
-//     const svg = d3.select(tileContainer)
-//                   .append('svg')
-//                   .attr('width', containerWidth)
-//                   .attr('height', 40)  // Height for the axis
-//                   .attr('class', 'x-axis')
-//                   .style('position', 'relative')
-//                   .style('bottom', '0px')  // Place at the bottom of the tile container
-//                   .style('left', '0');
-
-//     const xAxis = d3.axisBottom(d3.scaleBand().domain(["S1", "S2", "S3", "S4"]).range([0, containerWidth]));
-
-//     svg.append('g')
-//        .attr('class', 'x-axis')
-//        .attr('transform', `translate(0, 20)`)  // Adjust vertical positioning slightly
-//        .call(xAxis);
-// }
-
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-
-//     if (!tileContainer) {
-//         console.error("#tileContainer not found");
-//         return; // Exit if the element doesn't exist
-//     }
-
-//     // Get the container width and height dynamically
-//     const containerWidth = tileContainer.offsetWidth;
-//     const containerHeight = tileContainer.offsetHeight;
-
-//     const tileWidth = 150;
-//     const tileHeight = 150;
-
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-
-//     // Limit to 10 episodes per season
-//     const maxEpisodesPerSeason = 5;
-
-//     // Calculate the max number of episodes in any season (for yScale)
-//     const maxEpisodes = Math.min(
-//         Math.max(...bustBubbleRootData.map(season => season.children.length)),
-//         maxEpisodesPerSeason
-//     );
-
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//         .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//         .range([0, containerWidth])  // Scale across container width
-//         .padding(0.15);  // Increased padding between the seasons (space between tiles horizontally)
-
-//     const yScale = d3.scaleBand()
-//         .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically (limit to 10 episodes max)
-//         .range([0, containerHeight])  // Scale across container height
-//         .padding(10);  // Increased padding between the episodes (space between tiles vertically)
-
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//         const seasonContainer = document.createElement('div');
-//         seasonContainer.classList.add('season-container');
-
-//         // Create a container for each season to hold its episodes
-//         season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
-//             const tile = document.createElement('div');
-//             tile.classList.add('tile');
-//             tile.innerHTML = `
-//                 <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-//             `;
-
-//             // Add a click event to the tile to open the sidebar
-//             tile.addEventListener('click', () => openSidebar(episode));
-
-//             seasonContainer.appendChild(tile);
-//         });
-
-//         // Append the season container to the tileContainer
-//         tileContainer.appendChild(seasonContainer);
-//     });
-
-//     // Now, let's add the X axis (season numbers)
-//     const svg = d3.select(tileContainer)
-//                   .append('svg')
-//                   .attr('width', containerWidth)
-//                   .attr('height', 40)  // Height for the axis
-//                   .attr('class', 'x-axis')
-//                   .style('position', 'absolute')
-//                   .style('bottom', '0')  // Position at the bottom of the tile container
-//                   .style('left', '0')
-//                   .style('display', 'block');
-
-//     const xAxis = d3.axisBottom(xScale)
-//                     .tickFormat((d, i) => `Season ${i + 1}`);  // Display 'Season 1', 'Season 2', etc.
-
-//     svg.append('g')
-//        .attr('class', 'x-axis')
-//        .attr('transform', `translate(0, 20)`)  // Adjust vertical positioning slightly
-//        .call(xAxis);
-// }
-
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-
-//     if (!tileContainer) {
-//         console.error("#tileContainer not found");
-//         return; // Exit if the element doesn't exist
-//     }
-
-//     // Get the container width and height dynamically
-//     const containerWidth = tileContainer.offsetWidth;
-//     const containerHeight = tileContainer.offsetHeight;
-
-//     const tileWidth = 150;
-//     const tileHeight = 150;
-
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-
-//     // Limit to 10 episodes per season
-//     const maxEpisodesPerSeason = 10;
-
-//     // Calculate the max number of episodes in any season (for yScale)
-//     const maxEpisodes = Math.min(
-//         Math.max(...bustBubbleRootData.map(season => season.children.length)),
-//         maxEpisodesPerSeason
-//     );
-
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//         .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//         .range([0, containerWidth])  // Scale across container width
-//         .padding(0.15);  // Increased padding between the seasons (space between tiles horizontally)
-
-//     const yScale = d3.scaleBand()
-//         .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically (limit to 10 episodes max)
-//         .range([0, containerHeight])  // Scale across container height
-//         .padding(10);  // Increased padding between the episodes (space between tiles vertically)
-
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//         const seasonContainer = document.createElement('div');
-//         seasonContainer.classList.add('season-container');
-
-//         // Create a container for each season to hold its episodes
-//         season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
-//             const tile = document.createElement('div');
-//             tile.classList.add('tile');
-//             tile.innerHTML = `
-//                 <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-//             `;
-
-//             // Add a click event to the tile to open the sidebar
-//             tile.addEventListener('click', () => openSidebar(episode));
-
-//             seasonContainer.appendChild(tile);
-//         });
-
-//         // Append the season container to the tileContainer
-//         tileContainer.appendChild(seasonContainer);
-//     });
-
-//     // Now, let's add the X axis (season numbers)
-//     const svg = d3.select(tileContainer)
-//                   .append('svg')
-//                   .attr('width', containerWidth)
-//                   .attr('height', 40)  // Height for the axis
-//                   .attr('class', 'x-axis')
-//                   .style('position', 'absolute')
-//                   .style('left', '0')
-//                   .style('bottom', '0px') // Position at the bottom of the tile container
-//                   .style('display', 'block');
-
-//     const xAxis = d3.axisBottom(xScale)
-//                     .tickFormat((d, i) => `Season ${i + 1}`);  // Display 'Season 1', 'Season 2', etc.
-
-//     svg.append('g')
-//        .attr('class', 'x-axis')
-//        .attr('transform', `translate(0, 20)`)  // Adjust vertical positioning slightly
-//        .call(xAxis);
-// }
-
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-
-//     if (!tileContainer) {
-//         console.error("#tileContainer not found");
-//         return; // Exit if the element doesn't exist
-//     }
-
-//     // Get the container width and height dynamically
-//     const containerWidth = tileContainer.offsetWidth;
-//     const containerHeight = tileContainer.offsetHeight;
-
-//     const tileWidth = 150;
-//     const tileHeight = 150;
-
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-
-//     // Limit to 10 episodes per season
-//     const maxEpisodesPerSeason = 10;
-
-//     // Calculate the max number of episodes in any season (for yScale)
-//     const maxEpisodes = Math.min(
-//         Math.max(...bustBubbleRootData.map(season => season.children.length)),
-//         maxEpisodesPerSeason
-//     );
-
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//         .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//         .range([0, containerWidth])  // Scale across container width
-//         .padding(0.15);  // Increased padding between the seasons (space between tiles horizontally)
-
-//     const yScale = d3.scaleBand()
-//         .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically (limit to 10 episodes max)
-//         .range([0, containerHeight])  // Scale across container height
-//         .padding(10);  // Increased padding between the episodes (space between tiles vertically)
-
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//         const seasonContainer = document.createElement('div');
-//         seasonContainer.classList.add('season-container');
-
-//         // Create a container for each season to hold its episodes
-//         season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
-//             const tile = document.createElement('div');
-//             tile.classList.add('tile');
-//             tile.innerHTML = `
-//                 <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-//             `;
-
-//             // Add a click event to the tile to open the sidebar
-//             tile.addEventListener('click', () => openSidebar(episode));
-
-//             seasonContainer.appendChild(tile);
-//         });
-
-//         // Append the season container to the tileContainer
-//         tileContainer.appendChild(seasonContainer);
-//     });
-
-//     // Now, let's add the X axis (season numbers)
-//     const svg = d3.select(tileContainer)
-//                   .append('svg')
-//                   .attr('width', containerWidth)
-//                   .attr('height', 40)  // Height for the axis
-//                   .attr('class', 'x-axis')
-//                   .style('position', 'absolute')
-//                   .style('left', '0')
-//                   .style('bottom', '0px');  // Place at the bottom of the tile container
 
 //     const xAxis = d3.axisBottom(xScale)
 //                     .tickFormat((d, i) => `Season ${i + 1}`);  // Display 'Season 1', 'Season 2', etc.
@@ -1249,86 +158,81 @@ function initTileLayout() {
 // }
 
 function drawTileLayout() {
-    const tileContainer = document.getElementById("tileContainer");
+  const tileContainer = document.getElementById("tileContainer");
+  if (!tileContainer) {
+    console.error("#tileContainer not found");
+    return;
+  }
 
-    if (!tileContainer) {
-        console.error("#tileContainer not found");
-        return; // Exit if the element doesn't exist
-    }
+  // === CONFIG ===
+  const seasons = bustBubbleRootData.map(d => d.id);  // ["S1","S2","S3","S4"]
+  const maxEps  = 5;                                // exactly 10 eps per column
+  const W       = tileContainer.clientWidth;
+  const H       = tileContainer.clientHeight;
+  const axisH   = 40;    // space for the x axis
 
-    // Get the container width and height dynamically
-    const containerWidth = tileContainer.offsetWidth;
-    const containerHeight = tileContainer.offsetHeight;
+  // clear & set up flex container
+  tileContainer.innerHTML = "";
+  tileContainer.style.display        = "flex";
+  tileContainer.style.justifyContent = "space-between";
+  tileContainer.style.alignItems     = "flex-start";
+  tileContainer.style.position       = "relative";  
 
-    const tileWidth = 150;
-    const tileHeight = 150;
+  // compute each column width
+  const colW = W / seasons.length;
 
-    // Clear the existing tiles
-    tileContainer.innerHTML = '';
+  // build one column per season
+  bustBubbleRootData.forEach(season => {
+    const col = document.createElement("div");
+    col.style.display        = "flex";
+    col.style.flexDirection  = "column";
+    col.style.alignItems     = "center";
+    col.style.gap            = "8px";
+    col.style.width          = `${colW}px`;
+    col.style.minHeight      = `${H - axisH}px`;
+    col.style.boxSizing      = "border-box";
 
-    // Limit to 10 episodes per season
-    const maxEpisodesPerSeason = 10;
-
-    // Calculate the max number of episodes in any season (for yScale)
-    const maxEpisodes = Math.min(
-        Math.max(...bustBubbleRootData.map(season => season.children.length)),
-        maxEpisodesPerSeason
-    );
-
-    // Set up scales for positioning the tiles
-    const xScale = d3.scaleBand()
-        .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-        .range([0, containerWidth])  // Scale across container width
-        .padding(0.15);  // Increased padding between the seasons (space between tiles horizontally)
-
-    const yScale = d3.scaleBand()
-        .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically (limit to 10 episodes max)
-        .range([0, containerHeight - 40])  // Adjust the Y range to leave space for the X-axis at the bottom
-        .padding(10);  // Increased padding between the episodes (space between tiles vertically)
-
-    // Loop over the seasons and their episodes to create tiles
-    bustBubbleRootData.forEach(season => {
-        const seasonContainer = document.createElement('div');
-        seasonContainer.classList.add('season-container');
-
-        // Create a container for each season to hold its episodes
-        season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
-            const tile = document.createElement('div');
-            tile.classList.add('tile');
-            tile.innerHTML = `
-                <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-            `;
-
-            // Add a click event to the tile to open the sidebar
-            tile.addEventListener('click', () => openSidebar(episode));
-
-            seasonContainer.appendChild(tile);
-        });
-
-        // Append the season container to the tileContainer
-        tileContainer.appendChild(seasonContainer);
+    // add up to maxEps tiles
+    season.children.slice(0, maxEps).forEach(ep => {
+      const episodeNum = parseInt(ep.id.slice(3), 10);
+      const tile = document.createElement("div");
+      tile.classList.add("tile");
+      tile.style.width       = `${colW * 0.8}px`;
+      tile.style.cursor      = "pointer";
+      tile.innerHTML = `
+        <div class="tile-title">
+          Season ${season.id.slice(1)} – Episode ${episodeNum}
+        </div>
+      `;
+      tile.addEventListener("click", () => openSidebar(ep));
+      col.appendChild(tile);
     });
 
-    // Now, let's add the X axis (season numbers) and ensure it's at the bottom
-    const svg = d3.select(tileContainer)
-                  .append('svg')
-                  .attr('width', containerWidth)
-                  .attr('height', 40)  // Height for the axis
-                  .attr('class', 'x-axis')
-                  .style('position', 'relative')
-                  .style('margin-top', `${containerHeight - 40}px`); // Correctly move the X-axis to the bottom
+    tileContainer.appendChild(col);
+  });
 
-    const xAxis = d3.axisBottom(xScale)
-                    .tickFormat((d, i) => `Season ${i + 1}`);  // Display 'Season 1', 'Season 2', etc.
+  // === X-AXIS ===
+  const xScale = d3.scaleBand()
+    .domain(seasons)
+    .range([colW/2, W - colW/2])
+    .padding(0);
 
-    svg.append('g')
-       .attr('class', 'x-axis')
-       .attr('transform', `translate(0, 20)`)  // Adjust vertical positioning slightly
-       .call(xAxis);
+  const axisSvg = d3.select(tileContainer)
+    .append("svg")
+      .attr("width",  W)
+      .attr("height", axisH)
+      .style("position", "absolute")
+      .style("left",     "0px")
+      .style("bottom",   "0px");
+
+  axisSvg.append("g")
+    .attr("transform", `translate(0, ${axisH/2})`)
+    .call(
+      d3.axisBottom(xScale)
+        .tickFormat((d,i) => `Season ${i+1}`)
+    );
 }
 
-
-  
 
 // Open the Sidebar with Episode Details
 function openSidebar(episode) {

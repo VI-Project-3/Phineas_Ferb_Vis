@@ -651,6 +651,7 @@ footer {
 }
 
 #tileContainer {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(10, 1fr); /* 4 columns for each season */
   gap: 20px; /* Space between tiles */
