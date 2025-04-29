@@ -8,8 +8,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap" rel="stylesheet">
 </head>
 <body>
-
+  <a href="index.html" id="homeButton">🏠 Home</a>
   <header>
+    <br>
     <h1>Phineas and Ferb: Character Interaction Dashboard</h1>
     <p>Track who speaks when, how often, and with whom – across every season.</p>
   </header>
@@ -52,20 +53,9 @@
 
       <hr />
 
-      <!-- <h2>Compare</h2> -->
-      <!-- <div class="control-block">
-        <label for="char1">Character 1</label>
-        <select id="char1"></select>
-
-        <label for="char2">Character 2</label>
-        <select id="char2"></select>
-      </div>
-
       <div class="button-group">
-        <button id="replayBtn">▶ Replay Storyline</button>
-        <button id="compareBtn">👀 Candace vs Mom</button>
-        <button id="replayDuoBtn">🎭 Replay Interactions</button>
-      </div> -->
+        <button id="replayBtn">▶ Replay </button>
+      </div>
 
       <h2> Visualizations </h2>
       <div class="button-group">
@@ -78,31 +68,43 @@
           📊 Analyze What Characters Say 
         </button>   
       </div>
+      <div class="button-group">
+        <button onclick="switchView('episodeGrid')" class="data-btn">
+          🎬 Episode Explorer
+        </button>   
+      </div>
     </aside>
 
     <!-- Main Panel -->
     <main class="main-content">
-      <!-- Top Overview -->
-      <section id="overview" class="card overview">
-        <div class="overview-section">
-          <h3>Show Overview</h3>
-          <ul>
-            <li><strong>Title:</strong> Phineas and Ferb</li>
-            <li><strong>Genre:</strong> Animated Comedy / Sci-Fi</li>
-            <li><strong>Platform:</strong> Disney Channel</li>
-          </ul>
-        </div>
-        <div class="overview-section">
-          <h3>Stats</h3>
-          <ul>
-            <li><strong>Run:</strong> 2007–2015</li>
-            <li><strong>Episodes:</strong> 222</li>
-            <li><strong>Analyzed:</strong> Seasons 1–4</li>
-          </ul>
-        </div>
-      </section>
-      
-      <!-- View Container -->
+  <!-- Toggle Button always visible -->
+  <div id="overviewToggleContainer">
+    <button id="toggleOverview">Show Overview ▼</button>
+  </div>
+
+  <!-- The overlay panel we show/hide -->
+  <header id="overviewBar" class="overview-bar">
+    <div id="overviewContent" class="overview-content">
+      <div class="overview-column">
+        <h3>Show Overview</h3>
+        <ul>
+          <li><strong>Title:</strong> Phineas and Ferb</li>
+          <li><strong>Genre:</strong> Animated Comedy / Sci-Fi</li>
+          <li><strong>Episodes:</strong> 222</li>
+          <li><strong>Seasons:</strong> 1 - 4</li>
+          <li><strong>Creators:</strong> Dan Povenmire &amp; Jeff “Swampy” Marsh</li>
+          <li><strong>Production:</strong> Disney Television Animation</li>
+          <li><strong>Original run:</strong> August 17 2007 – June 12 2015</li>
+          <li><strong>Country:</strong> United States</li>
+          <li><strong>Language:</strong> English</li>
+          <li><strong>Premise:</strong> Two step-brothers invent wild gadgets and embark on epic backyard adventures each summer day—while their sister, Candace, tries (and fails) to bust them.</li>
+          <li><strong>Theme Song:</strong> “Today Is Gonna Be a Great Day”</li>
+          <li><strong>Legacy:</strong> Earned multiple Emmy nominations and inspired a feature-length film, <em>Candace Against the Universe</em>.</li>
+        </ul>
+      </div>
+  </header>
+
+<!-- View Container -->
     <section id="viewContainer">
       <!-- Timeline View -->
       <section id="timelineView" class="card view-section">
@@ -127,6 +129,11 @@
         </section>
       </section>
 
+      <section id="episodeGridView" class="card view-section" style="display: none;">
+        <h2>Episode Explorer</h2>
+        <div id="episodeGridContainer"></div>
+      </section>
+
     </main>
   </div>
 
@@ -134,13 +141,21 @@
     <p>🛠️ Created for CS Visualization Project — Hosted on GitHub Pages</p>
   </footer>
 
+  
+  <!-- <script src="js/bustChart.js"></script> -->
+  <!-- <script src="js/bustExpandableBubble.js"></script> -->
+  <script src="js/bustBarChart.js"></script>
   <script src="js/script.js"></script>
+  
   <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.min.js"></script>
 
 <canvas id="myCanvas" width="600" height="400"></canvas>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
 <script src="js/textanalysis.js"></script>
+
+
+
 
 <!-- Modal Popup -->
 <div id="modal" class="modal">
@@ -150,6 +165,42 @@
     <ul id="majorCharactersList"></ul> <!-- We'll populate this dynamically -->
     <button id="closeModal">Close</button>
   </div>
+</div>
+
+<!-- Popup for Bust Attempts -->
+<!-- <div id="bustPopup" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+  <div style="background: white; padding: 20px 30px; border-radius: 10px; text-align: center; position: relative;">
+    <h2 id="bustPopupTitle" style="margin-top: 0;">Bust Attempts</h2>
+    <p id="bustPopupText" style="font-size: 18px; margin-bottom: 20px;">Loading...</p>
+    <button id="bustPopupClose" style="padding: 8px 16px; font-size: 16px; background: #f04a4a; color: white; border: none; border-radius: 6px; cursor: pointer;">Close</button>
+  </div>
+</div> -->
+
+<div id="episodeSidebar" class="episode-sidebar">
+  <button id="closeSidebar">×</button>
+  <h3 id="sidebarTitle">Episode Title Here</h3>
+
+<div class="sidebar-section">
+  <h4>Candace's Bust Attempts</h4>
+  <p id="sidebarBustAttempts"></p>
+</div>
+
+<div class="sidebar-section">
+  <h4>Phineas & Ferb's Big Idea</h4>
+  <img id="sidebarPhineasImage" class="sidebar-image" src="" alt="Phineas Big Idea">
+  <p id="sidebarPhineasIdea"></p>
+  <p id="sidebarPhineasDisappearance"></p>
+  <p id="sidebarPhineasNotes"></p>
+</div>
+
+<div class="sidebar-section">
+  <h4>Doofenshmirtz's Invention</h4>
+  <img id="sidebarDoofImage" class="sidebar-image" src="" alt="Doofenshmirtz Invention">
+  <p id="sidebarDoofInvention"></p>
+  <p id="sidebarDoofScheme"></p>
+  <p id="sidebarDoofFailure"></p>
+</div>
+
 </div>
 
 
