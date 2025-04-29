@@ -81,6 +81,12 @@
           🎬 Episode Explorer
         </button>   
       </div>
+      <!-- Add this with your other view buttons in the sidebar -->
+    <div class="button-group">
+      <button onclick="switchView('barRace')" class="data-btn">
+        🏁 Character Interaction Race
+      </button>   
+    </div>
     </aside>
 
     <!-- Main Panel -->
@@ -140,6 +146,29 @@
       <section id="episodeGridView" class="card view-section" style="display: none;">
         <h2>Episode Explorer</h2>
         <div id="episodeGridContainer"></div>
+      </section>
+
+      <!-- Add this with your other view sections -->
+      <section id="barRaceView" class="card view-section" style="display: none;">
+        <h2>Character Interaction Race</h2>
+        <div class="controls">
+          <button id="playRace">▶ Play</button>
+          <button id="pauseRace">⏸ Pause</button>
+          <button id="resetRace">↺ Reset</button>
+        </div>
+        <select id="speedControl">
+          <option value="600">Slow</option>
+          <option value="400" selected>Normal</option>
+          <option value="100">Fast</option>
+        </select>
+        
+        <div class="time-display">
+          <span id="currentTitle"></span>
+          (Season: <span id="currentSeason"></span> Episode: <span id="currentEpisode"></span>)
+        </div>
+
+        <div id="barRaceChart"></div>
+        <!-- <div class="time-display">Season: <span id="currentSeason">1</span> Episode: <span id="currentEpisode">1</span></div> -->
       </section>
 
     </main>
