@@ -66,19 +66,6 @@ let showEpisodeDetails = (episode) => {
     document.body.appendChild(episodeDetails);
   };
   
-  // Helper function for bust attempt comments
-  // function getBustComment(attempts) {
-  //   const comments = [
-  //     "Candace didn't even try this episode!",
-  //     "Candace made a half-hearted attempt.",
-  //     "Standard busting activity.",
-  //     "Candace was particularly determined!",
-  //     "Maximum busting intensity!",
-  //     "Candace went all out this episode!"
-  //   ];
-  //   return comments[Math.min(attempts, 5)];
-  // }
-
   function getBustComment(attempts) {
     const comments = [
       "Candace didn't even try this episode!",
@@ -89,7 +76,6 @@ let showEpisodeDetails = (episode) => {
       "Candace went all out this episode!"
     ];
   
-    // Dynamically provide a more detailed comment based on bust attempts
     if (attempts === 0) {
       return comments[0]; // No attempts
     } else if (attempts <= 2) {
@@ -133,75 +119,278 @@ function initEpisodeGridView() {
   }
 
 
-function drawEpisodeGridView() {
-    // Clear existing content
-    const container = document.getElementById("episodeGridView");
-    container.innerHTML = "";
+// function drawEpisodeGridView() {
+//     // Clear existing content
+//     const container = document.getElementById("episodeGridView");
+//     container.innerHTML = "";
   
-    // Create control panel
-    container.innerHTML = `
-      <div class="controls">
-        <div class="filter-group">
-          <label>Season:</label>
-          <select id="seasonelect">
-            <option value="all">All Seasons</option>
-            <option value="S1">Season 1</option>
-            <option value="S2">Season 2</option>
-            <option value="S3">Season 3</option>
-            <option value="S4">Season 4</option>
-          </select>
-        </div>
+//     // Create control panel
+//     container.innerHTML = `
+//       <div class="controls">
+//         <div class="filter-group">
+//           <label>Season:</label>
+//           <select id="seasonelect">
+//             <option value="all">All Seasons</option>
+//             <option value="S1">Season 1</option>
+//             <option value="S2">Season 2</option>
+//             <option value="S3">Season 3</option>
+//             <option value="S4">Season 4</option>
+//           </select>
+//         </div>
         
-        <div class="filter-group">
-          <label>Year:</label>
-          <select id="yearSelect">
-            <option value="all">All Years</option>
-            <option value="2007">2007</option>
-            <option value="2008">2008</option>
-            <option value="2009">2009</option>
-            <option value="2010">2010</option>
-          </select>
-        </div>
+//         <div class="filter-group">
+//           <label>Year:</label>
+//           <select id="yearSelect">
+//             <option value="all">All Years</option>
+//             <option value="2007">2007</option>
+//             <option value="2008">2008</option>
+//             <option value="2009">2009</option>
+//             <option value="2010">2010</option>
+//           </select>
+//         </div>
         
-        <div class="filter-group">
-          <label>Sort:</label>
-          <select id="sortSelect">
-            <option value="default">Default</option>
-            <option value="name-asc">Name (A-Z)</option>
-            <option value="name-desc">Name (Z-A)</option>
-            <option value="year-asc">Year (Oldest)</option>
-            <option value="year-desc">Year (Newest)</option>
-            <option value="bust-asc">Bust Attempts (Low)</option>
-            <option value="bust-desc">Bust Attempts (High)</option>
-          </select>
-        </div>
+//         <div class="filter-group">
+//           <label>Sort:</label>
+//           <select id="sortSelect">
+//             <option value="default">Default</option>
+//             <option value="name-asc">Name (A-Z)</option>
+//             <option value="name-desc">Name (Z-A)</option>
+//             <option value="year-asc">Year (Oldest)</option>
+//             <option value="year-desc">Year (Newest)</option>
+//             <option value="bust-asc">Bust Attempts (Low)</option>
+//             <option value="bust-desc">Bust Attempts (High)</option>
+//           </select>
+//         </div>
         
-        <div class="filter-group">
-          <button id="toggleFavorites">Show Favorites Only</button>
-        </div>
+//         <div class="filter-group">
+//           <button id="toggleFavorites">Show Favorites Only</button>
+//         </div>
         
-        <div class="filter-group">
-          <input type="text" id="searchInput" placeholder="Search episodes...">
-        </div>
+//         <div class="filter-group">
+//           <input type="text" id="searchInput" placeholder="Search episodes...">
+//         </div>
+//       </div>
+      
+//       <div id="episodeGrid" class="episode-grid"></div>
+//     `;
+  
+//     // Get DOM elements
+//     const grid = document.getElementById("episodeGrid");
+//     const seasonelect = document.getElementById("seasonelect");
+//     const yearSelect = document.getElementById("yearSelect");
+//     const sortSelect = document.getElementById("sortSelect");
+//     const toggleFavorites = document.getElementById("toggleFavorites");
+//     const searchInput = document.getElementById("searchInput");
+  
+//     // Track favorites
+//     let showFavoritesOnly = false;
+//     const favorites = JSON.parse(localStorage.getItem('phineasFavorites')) || {};
+  
+//     // Function to render episodes with all filters applied
+//     const renderEpisodes = () => {
+//       // Get current filter values
+//       const seasonFilter = seasonelect.value;
+//       const yearFilter = yearSelect.value;
+//       const searchQuery = searchInput.value.toLowerCase();
+//       const sortValue = sortSelect.value;
+      
+//       // Flatten all episodes
+//       let episodes = [];
+//       bustBubbleRootData.forEach(season => {
+//         season.children.forEach(episode => {
+//           episodes.push({
+//             ...episode,
+//             seasonId: season.id,
+//             year: getYearForSeason(episode.id.slice(1, 2)),
+//             isFavorite: !!favorites[episode.id]
+//           });
+//         });
+//       });
+      
+//       // Apply filters
+//       let filteredEpisodes = episodes.filter(episode => {
+//         // Season filter
+//         if (seasonFilter !== 'all' && episode.seasonId !== seasonFilter) return false;
+        
+//         // Year filter
+//         if (yearFilter !== 'all' && episode.year !== yearFilter) return false;
+        
+//         // Favorite filter
+//         if (showFavoritesOnly && !episode.isFavorite) return false;
+        
+//         // Search filter
+//         if (searchQuery && 
+//             !episode.name.toLowerCase().includes(searchQuery) && 
+//             !episode.phineasBigIdea.toLowerCase().includes(searchQuery) &&
+//             !episode.doofenshmirtzInvention.toLowerCase().includes(searchQuery)) {
+//           return false;
+//         }
+        
+//         return true;
+//       });
+      
+//       // Apply sorting
+//       filteredEpisodes.sort((a, b) => {
+//         switch(sortValue) {
+//           case 'name-asc': return a.name.localeCompare(b.name);
+//           case 'name-desc': return b.name.localeCompare(a.name);
+//           case 'year-asc': return a.year - b.year;
+//           case 'year-desc': return b.year - a.year;
+//           case 'bust-asc': return a.bustAttempts - b.bustAttempts;
+//           case 'bust-desc': return b.bustAttempts - a.bustAttempts;
+//           default: return 0; // Default order
+//         }
+//       });
+      
+//       // Render episodes
+//       grid.innerHTML = '';
+//       filteredEpisodes.forEach(episode => {
+//         const tile = document.createElement('div');
+//         tile.className = `episode-tile ${episode.isFavorite ? 'favorite' : ''}`;
+//         tile.innerHTML = `
+//           <div class="tile-header">
+//             <span class="favorite-star" data-id="${episode.id}">${episode.isFavorite ? '★' : '☆'}</span>
+//             <span class="tile-title">${episode.id}</span>
+//           </div>
+//           <div class="tile-image-container">
+//             <img src="${episode.image1}" 
+//                  alt="${episode.name}"
+//                  onerror="this.onerror=null;this.src='images/default-thumb.jpg';">
+//           </div>
+//           <div class="tile-name">${episode.name}</div>
+//           <div class="tile-year">${episode.year}</div>
+//           <div class="tile-busts">Busts: ${episode.bustAttempts}</div>
+//         `;
+        
+//         tile.addEventListener('click', () => showEpisodeDetails(episode));
+//         tile.querySelector('.favorite-star').addEventListener('click', (e) => {
+//           e.stopPropagation();
+//           toggleFavorite(episode.id);
+//         });
+        
+//         grid.appendChild(tile);
+//       });
+//     };
+  
+//     // Toggle favorite status
+//     const toggleFavorite = (episodeId) => {
+//       favorites[episodeId] = !favorites[episodeId];
+//       localStorage.setItem('phineasFavorites', JSON.stringify(favorites));
+//       renderEpisodes();
+//     };
+  
+//     // Toggle favorites filter
+//     toggleFavorites.addEventListener('click', () => {
+//       showFavoritesOnly = !showFavoritesOnly;
+//       toggleFavorites.textContent = showFavoritesOnly ? 
+//         'Show All Episodes' : 'Show Favorites Only';
+//       renderEpisodes();
+//     });
+  
+//     seasonelect.addEventListener('change', renderEpisodes);
+//     yearSelect.addEventListener('change', renderEpisodes);
+//     sortSelect.addEventListener('change', renderEpisodes);
+//     searchInput.addEventListener('input', renderEpisodes);
+  
+//     // Initial render
+//     renderEpisodes();
+//   }
+
+function drawEpisodeGridView() {
+  // Clear existing content
+  const container = document.getElementById("episodeGridView");
+  container.innerHTML = "";
+  
+  // Pagination settings
+  const episodesPerPage = 20; // Number of episodes to show per page
+  let currentPage = 1;
+
+  // Create control panel with pagination controls
+  container.innerHTML = `
+    <div class="controls">
+      <div class="filter-group">
+        <label>Season:</label>
+        <select id="seasonelect">
+          <option value="all">All Seasons</option>
+          <option value="S1">Season 1</option>
+          <option value="S2">Season 2</option>
+          <option value="S3">Season 3</option>
+          <option value="S4">Season 4</option>
+        </select>
       </div>
       
-      <div id="episodeGrid" class="episode-grid"></div>
-    `;
-  
-    // Get DOM elements
-    const grid = document.getElementById("episodeGrid");
-    const seasonelect = document.getElementById("seasonelect");
-    const yearSelect = document.getElementById("yearSelect");
-    const sortSelect = document.getElementById("sortSelect");
-    const toggleFavorites = document.getElementById("toggleFavorites");
-    const searchInput = document.getElementById("searchInput");
-  
-    // Track favorites
-    let showFavoritesOnly = false;
-    const favorites = JSON.parse(localStorage.getItem('phineasFavorites')) || {};
-  
-    // Function to render episodes with all filters applied
-    const renderEpisodes = () => {
+      <div class="filter-group">
+        <label>Year:</label>
+        <select id="yearSelect">
+          <option value="all">All Years</option>
+          <option value="2007">2007</option>
+          <option value="2008">2008</option>
+          <option value="2009">2009</option>
+          <option value="2010">2010</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Sort:</label>
+        <select id="sortSelect">
+          <option value="default">Default</option>
+          <option value="name-asc">Name (A-Z)</option>
+          <option value="name-desc">Name (Z-A)</option>
+          <option value="year-asc">Year (Oldest)</option>
+          <option value="year-desc">Year (Newest)</option>
+          <option value="bust-asc">Bust Attempts (Low)</option>
+          <option value="bust-desc">Bust Attempts (High)</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <button id="toggleFavorites">Show Favorites Only</button>
+      </div>
+      
+      <div class="filter-group">
+        <input type="text" id="searchInput" placeholder="Search episodes...">
+      </div>
+    </div>
+    
+    <div id="episodeGrid" class="episode-grid"></div>
+    
+    <div class="pagination-controls">
+      <button id="firstPage" class="page-button" title="First Page">«</button>
+      <button id="prevPage" class="page-button" title="Previous Page">‹</button>
+      <span id="pageInfo">Page 1 of 1</span>
+      <button id="nextPage" class="page-button" title="Next Page">›</button>
+      <button id="lastPage" class="page-button" title="Last Page">»</button>
+    </div>
+  `;
+
+  // Get DOM elements
+  const grid = document.getElementById("episodeGrid");
+  const seasonelect = document.getElementById("seasonelect");
+  const yearSelect = document.getElementById("yearSelect");
+  const sortSelect = document.getElementById("sortSelect");
+  const toggleFavorites = document.getElementById("toggleFavorites");
+  const searchInput = document.getElementById("searchInput");
+  const firstPageBtn = document.getElementById("firstPage");
+  const prevPageBtn = document.getElementById("prevPage");
+  const nextPageBtn = document.getElementById("nextPage");
+  const lastPageBtn = document.getElementById("lastPage");
+  const pageInfo = document.getElementById("pageInfo");
+
+  // Track favorites
+  let showFavoritesOnly = false;
+  const favorites = JSON.parse(localStorage.getItem('phineasFavorites')) || {};
+
+  // Function to update pagination controls
+  const updatePaginationControls = (totalPages) => {
+      firstPageBtn.disabled = currentPage === 1;
+      prevPageBtn.disabled = currentPage === 1;
+      nextPageBtn.disabled = currentPage === totalPages;
+      lastPageBtn.disabled = currentPage === totalPages;
+      pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+  };
+
+  // Function to render episodes with all filters applied
+  const renderEpisodes = () => {
       // Get current filter values
       const seasonFilter = seasonelect.value;
       const yearFilter = yearSelect.value;
@@ -211,104 +400,170 @@ function drawEpisodeGridView() {
       // Flatten all episodes
       let episodes = [];
       bustBubbleRootData.forEach(season => {
-        season.children.forEach(episode => {
-          episodes.push({
-            ...episode,
-            seasonId: season.id,
-            year: getYearForSeason(episode.id.slice(1, 2)),
-            isFavorite: !!favorites[episode.id]
+          season.children.forEach(episode => {
+              episodes.push({
+                  ...episode,
+                  seasonId: season.id,
+                  year: getYearForSeason(episode.id.slice(1, 2)),
+                  isFavorite: !!favorites[episode.id]
+              });
           });
-        });
       });
       
       // Apply filters
       let filteredEpisodes = episodes.filter(episode => {
-        // Season filter
-        if (seasonFilter !== 'all' && episode.seasonId !== seasonFilter) return false;
-        
-        // Year filter
-        if (yearFilter !== 'all' && episode.year !== yearFilter) return false;
-        
-        // Favorite filter
-        if (showFavoritesOnly && !episode.isFavorite) return false;
-        
-        // Search filter
-        if (searchQuery && 
-            !episode.name.toLowerCase().includes(searchQuery) && 
-            !episode.phineasBigIdea.toLowerCase().includes(searchQuery) &&
-            !episode.doofenshmirtzInvention.toLowerCase().includes(searchQuery)) {
-          return false;
-        }
-        
-        return true;
+          // Season filter
+          if (seasonFilter !== 'all' && episode.seasonId !== seasonFilter) return false;
+          
+          // Year filter
+          if (yearFilter !== 'all' && episode.year !== parseInt(yearFilter)) return false;
+          
+          // Favorite filter
+          if (showFavoritesOnly && !episode.isFavorite) return false;
+          
+          // Search filter
+          if (searchQuery && 
+              !episode.name.toLowerCase().includes(searchQuery) && 
+              !(episode.phineasBigIdea && episode.phineasBigIdea.toLowerCase().includes(searchQuery)) &&
+              !(episode.doofenshmirtzInvention && episode.doofenshmirtzInvention.toLowerCase().includes(searchQuery))) {
+              return false;
+          }
+          
+          return true;
       });
       
       // Apply sorting
       filteredEpisodes.sort((a, b) => {
-        switch(sortValue) {
-          case 'name-asc': return a.name.localeCompare(b.name);
-          case 'name-desc': return b.name.localeCompare(a.name);
-          case 'year-asc': return a.year - b.year;
-          case 'year-desc': return b.year - a.year;
-          case 'bust-asc': return a.bustAttempts - b.bustAttempts;
-          case 'bust-desc': return b.bustAttempts - a.bustAttempts;
-          default: return 0; // Default order
-        }
+          switch(sortValue) {
+              case 'name-asc': return a.name.localeCompare(b.name);
+              case 'name-desc': return b.name.localeCompare(a.name);
+              case 'year-asc': return a.year - b.year;
+              case 'year-desc': return b.year - a.year;
+              case 'bust-asc': return a.bustAttempts - b.bustAttempts;
+              case 'bust-desc': return b.bustAttempts - a.bustAttempts;
+              default: return 0; // Default order
+          }
       });
+      
+      // Calculate pagination
+      const totalEpisodes = filteredEpisodes.length;
+      const totalPages = Math.ceil(totalEpisodes / episodesPerPage);
+
+       // Handle last page request (when currentPage is 0)
+       if (currentPage === 0) {
+        currentPage = totalPages;
+    }
+      
+      // Reset to first page if current page is invalid
+      if (currentPage > totalPages && totalPages > 0) {
+          currentPage = totalPages;
+      } else if (currentPage < 1) {
+          currentPage = 1;
+      }
+      
+      // Update pagination controls
+      updatePaginationControls(totalPages);
+      
+      // Get episodes for current page
+      const startIndex = (currentPage - 1) * episodesPerPage;
+      const endIndex = Math.min(startIndex + episodesPerPage, totalEpisodes);
+      const episodesToShow = filteredEpisodes.slice(startIndex, endIndex);
       
       // Render episodes
       grid.innerHTML = '';
-      filteredEpisodes.forEach(episode => {
-        const tile = document.createElement('div');
-        tile.className = `episode-tile ${episode.isFavorite ? 'favorite' : ''}`;
-        tile.innerHTML = `
-          <div class="tile-header">
-            <span class="favorite-star" data-id="${episode.id}">${episode.isFavorite ? '★' : '☆'}</span>
-            <span class="tile-title">${episode.id}</span>
-          </div>
-          <div class="tile-image-container">
-            <img src="${episode.image1}" 
-                 alt="${episode.name}"
-                 onerror="this.onerror=null;this.src='images/default-thumb.jpg';">
-          </div>
-          <div class="tile-name">${episode.name}</div>
-          <div class="tile-year">${episode.year}</div>
-          <div class="tile-busts">Busts: ${episode.bustAttempts}</div>
-        `;
-        
-        tile.addEventListener('click', () => showEpisodeDetails(episode));
-        tile.querySelector('.favorite-star').addEventListener('click', (e) => {
-          e.stopPropagation();
-          toggleFavorite(episode.id);
-        });
-        
-        grid.appendChild(tile);
+      if (episodesToShow.length === 0) {
+          grid.innerHTML = '<div class="no-results">No episodes match your criteria</div>';
+          return;
+      }
+      
+      episodesToShow.forEach(episode => {
+          const tile = document.createElement('div');
+          tile.className = `episode-tile ${episode.isFavorite ? 'favorite' : ''}`;
+          tile.innerHTML = `
+              <div class="tile-header">
+                  <span class="favorite-star" data-id="${episode.id}">${episode.isFavorite ? '★' : '☆'}</span>
+                  <span class="tile-title">${episode.id}</span>
+              </div>
+              <div class="tile-image-container">
+                  <img src="${episode.image1}" 
+                       alt="${episode.name}"
+                       onerror="this.onerror=null;this.src='images/default-thumb.jpg';">
+              </div>
+              <div class="tile-name">${episode.name}</div>
+              <div class="tile-year">${episode.year}</div>
+              <div class="tile-busts">Busts: ${episode.bustAttempts}</div>
+          `;
+          
+          tile.addEventListener('click', () => showEpisodeDetails(episode));
+          tile.querySelector('.favorite-star').addEventListener('click', (e) => {
+              e.stopPropagation();
+              toggleFavorite(episode.id);
+          });
+          
+          grid.appendChild(tile);
       });
-    };
-  
-    // Toggle favorite status
-    const toggleFavorite = (episodeId) => {
+  };
+
+  // Toggle favorite status
+  const toggleFavorite = (episodeId) => {
       favorites[episodeId] = !favorites[episodeId];
       localStorage.setItem('phineasFavorites', JSON.stringify(favorites));
       renderEpisodes();
-    };
-  
-    // Toggle favorites filter
-    toggleFavorites.addEventListener('click', () => {
+  };
+
+  // Toggle favorites filter
+  toggleFavorites.addEventListener('click', () => {
       showFavoritesOnly = !showFavoritesOnly;
       toggleFavorites.textContent = showFavoritesOnly ? 
-        'Show All Episodes' : 'Show Favorites Only';
+          'Show All Episodes' : 'Show Favorites Only';
+      currentPage = 1; // Reset to first page when changing filters
       renderEpisodes();
-    });
-  
-    seasonelect.addEventListener('change', renderEpisodes);
-    yearSelect.addEventListener('change', renderEpisodes);
-    sortSelect.addEventListener('change', renderEpisodes);
-    searchInput.addEventListener('input', renderEpisodes);
-  
-    // Initial render
-    renderEpisodes();
-  }
+  });
+
+  // Pagination event handlers
+  firstPageBtn.addEventListener('click', () => {
+      currentPage = 1;
+      renderEpisodes();
+  });
+
+  prevPageBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+          currentPage--;
+          renderEpisodes();
+      }
+  });
+
+  nextPageBtn.addEventListener('click', () => {
+      currentPage++;
+      renderEpisodes();
+  });
+
+  lastPageBtn.addEventListener('click', () => {
+      currentPage = 0; 
+      renderEpisodes();
+  });
+
+  // Filter event handlers
+  seasonelect.addEventListener('change', () => {
+      currentPage = 1;
+      renderEpisodes();
+  });
+  yearSelect.addEventListener('change', () => {
+      currentPage = 1;
+      renderEpisodes();
+  });
+  sortSelect.addEventListener('change', () => {
+      currentPage = 1;
+      renderEpisodes();
+  });
+  searchInput.addEventListener('input', () => {
+      currentPage = 1;
+      renderEpisodes();
+  });
+
+  // Initial render
+  renderEpisodes();
+}
 
   // Modify initTileLayout to return a Promise
   function initTileLayout() {

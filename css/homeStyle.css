@@ -1083,3 +1083,42 @@ button:hover {
   color: #666;
   font-size: 0.9em;
 }
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  gap: 10px;
+}
+
+.page-button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background-color: #3cbcc3;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.page-button:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.page-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#pageInfo {
+  margin: 0 15px;
+  font-size: 14px;
+}
+
+.no-results {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #666;
+  grid-column: 1 / -1;
+}
