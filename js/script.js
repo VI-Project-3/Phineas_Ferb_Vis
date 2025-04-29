@@ -513,7 +513,7 @@ d3.select("#replayDuoBtn").on("click", () => {
 let textAnalysisInitialized = false;
 
 function switchView(view) {
-  const views = ['timelineView', 'textAnalysisView', 'episodeGridView', 'barRaceView'];
+  const views = ['timelineView', 'textAnalysisView', 'episodeGridView', 'barRaceView','networkView'];
   views.forEach(id => {
     document.getElementById(id).style.display = (id === view + 'View') ? 'block' : 'none';
   });
@@ -530,6 +530,9 @@ function switchView(view) {
   }
   if (view === "barRace") {
     initBarRace();
+  }
+  if (view === "network") {
+    loadNetworkData();
   }
 }
 
