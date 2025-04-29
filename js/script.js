@@ -570,3 +570,137 @@ document.addEventListener('DOMContentLoaded', () => {
   bar.classList.add('hidden');
 });
 
+// Character data - you can expand this with more characters
+const charactersData = [
+  {
+    name: "Phineas Flynn",
+    description: "The inventive and optimistic stepbrother of Ferb and Candace.",
+    image: "images/characters/phineas.png",
+    links: [
+      { text: "Wikipedia", url: "https://en.wikipedia.org/wiki/Phineas_Flynn" },
+      { text: "Disney Wiki", url: "https://disney.fandom.com/wiki/Phineas_Flynn" }
+    ]
+  },
+  {
+    name: "Ferb Fletcher",
+    description: "Phineas's quiet but equally inventive British stepbrother.",
+    image: "images/characters/ferb.png",
+    links: [
+      { text: "Wikipedia", url: "https://en.wikipedia.org/wiki/Ferb_Fletcher" },
+      { text: "Disney Wiki", url: "https://disney.fandom.com/wiki/Ferb_Fletcher" }
+    ]
+  },
+  {
+    name: "Candace Flynn",
+    description: "Phineas and Ferb's older sister who constantly tries to bust them.",
+    image: "images/characters/candace.png",
+    links: [
+      { text: "Wikipedia", url: "https://en.wikipedia.org/wiki/Candace_Flynn" },
+      { text: "Disney Wiki", url: "https://disney.fandom.com/wiki/Candace_Flynn" }
+    ]
+  },
+  {
+    name: "Perry the Platypus",
+    description: "The Flynn-Fletcher family pet who is secretly a secret agent.",
+    image: "images/characters/perry.png",
+    links: [
+      { text: "Wikipedia", url: "https://en.wikipedia.org/wiki/Perry_the_Platypus" },
+      { text: "Disney Wiki", url: "https://disney.fandom.com/wiki/Perry_the_Platypus" }
+    ]
+  },
+  {
+    name: "Dr. Heinz Doofenshmirtz",
+    description: "An evil scientist and Perry the Platypus's nemesis.",
+    image: "images/characters/doofenshmirtz.png",
+    links: [
+      { text: "Wikipedia", url: "https://en.wikipedia.org/wiki/Dr._Doofenshmirtz" },
+      { text: "Disney Wiki", url: "https://disney.fandom.com/wiki/Heinz_Doofenshmirtz" }
+    ]
+  },
+  {
+    name: "Isabella Garcia-Shapiro",
+    description: "Leader of the Fireside Girls and Phineas's admirer.",
+    image: "images/characters/isabella.png",
+    links: [
+      { text: "Wikipedia", url: "https://en.wikipedia.org/wiki/Isabella_Garcia-Shapiro" },
+      { text: "Disney Wiki", url: "https://disney.fandom.com/wiki/Isabella_Garcia-Shapiro" }
+    ]
+  },
+  {
+    name: "Stacy Hirano",
+    description: "The best friend of Candace Flynn and good friends with Jeremy and Jenny.",
+    image: "images/characters/stacy.png",
+    links: [
+      { text: "Wikipedia", url: "https://phineasandferb.fandom.com/wiki/Stacy_Hirano" },
+      { text: "Disney Wiki", url: "https://phineasandferb.fandom.com/wiki/Stacy_Hirano" }
+    ]
+  },
+  {
+    name: "Baljeet Tjinder",
+    description: "Timid, yet intelligent Indian friend of Phineas Flynn and Ferb Fletcher",
+    image: "images/characters/balijeet.png",
+    links: [
+      { text: "Wikipedia", url: "https://disney.fandom.com/wiki/Baljeet_Tjinder" },
+      { text: "Disney Wiki", url: "https://disney.fandom.com/wiki/Baljeet_Tjinder" }
+    ]
+  },
+  {
+    name: "Buford Van Stomm",
+    description: "Local bully with a high sense of rudeness, but is not exactly evil. ",
+    image: "images/characters/buford.png",
+    links: [
+      { text: "Wikipedia", url: "https://disney.fandom.com/wiki/Buford_Van_Stomm" },
+      { text: "Disney Wiki", url: "https://disney.fandom.com/wiki/Buford_Van_Stommo" }
+    ]
+  }
+];
+
+// Function to show character cards
+function showCharacterCards() {
+  const overlay = document.getElementById('characterOverlay');
+  const characterGrid = document.querySelector('.character-grid');
+  
+  // Clear previous content
+  characterGrid.innerHTML = '';
+  
+  // Add each character to the grid
+  charactersData.forEach(character => {
+    const characterItem = document.createElement('div');
+    characterItem.className = 'character-item';
+    
+    characterItem.innerHTML = `
+      <img src="${character.image}" alt="${character.name}" class="character-image" 
+           onerror="this.onerror=null;this.src='images/default-character.webp';">
+      <div class="character-name">${character.name}</div>
+      <div class="character-description">${character.description}</div>
+      <div class="character-links">
+        ${character.links.map(link => 
+          `<a href="${link.url}" target="_blank" class="character-link">${link.text}</a>`
+        ).join(' | ')}
+      </div>
+    `;
+    
+    characterGrid.appendChild(characterItem);
+  });
+  
+  // Show the overlay
+  overlay.style.display = 'flex';
+}
+
+// Function to hide character cards
+function hideCharacterCards() {
+  document.getElementById('characterOverlay').style.display = 'none';
+}
+
+function setupCharacterButton() {
+  document.getElementById('showCharacters').addEventListener('click', showCharacterCards);
+  document.querySelector('.close-character-card').addEventListener('click', hideCharacterCards);
+  document.getElementById('characterOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('characterOverlay')) {
+      hideCharacterCards();
+    }
+  });
+}
+
+// Set up the character button
+setupCharacterButton();
