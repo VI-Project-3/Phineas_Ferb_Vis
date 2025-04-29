@@ -53,21 +53,6 @@
 
       <hr />
 
-      <!-- <h2>Compare</h2> -->
-      <!-- <div class="control-block">
-        <label for="char1">Character 1</label>
-        <select id="char1"></select>
-
-        <label for="char2">Character 2</label>
-        <select id="char2"></select>
-      </div>
-
-      <div class="button-group">
-        <button id="replayBtn">▶ Replay Storyline</button>
-        <button id="compareBtn">👀 Candace vs Mom</button>
-        <button id="replayDuoBtn">🎭 Replay Interactions</button>
-      </div> -->
-
       <div class="button-group">
         <button id="replayBtn">▶ Replay </button>
       </div>
@@ -84,13 +69,8 @@
         </button>   
       </div>
       <div class="button-group">
-        <button onclick="switchView('bustExpandableBubble')" class="data-btn">
-          Bust Bubble Chart
-        </button>   
-      </div>
-      <div class="button-group">
-        <button onclick="switchView('bustBarChart')" class="data-btn">
-          Bar Chart
+        <button onclick="switchView('episodeGrid')" class="data-btn">
+          🎬 Episode Explorer
         </button>   
       </div>
     </aside>
@@ -124,15 +104,6 @@
       </div>
   </header>
 
-      <!-- <div id="bustMeter" style="width: 300px; height: 200px; margin-top: 40px;"></div> -->
-      <!-- <div id="bustMeterContainer">
-        <svg id="bustMeter" width="100%" height="250px"></svg>
-      </div> -->
-      <!-- Bust Bubble Chart Container -->
-<!-- <div id="bustBubbleContainer" style="width: 100%; max-width: 600px; margin: auto; padding-top: 20px;">
-  <svg id="bustBubbleChart"></svg>
-</div> -->
-
 <!-- View Container -->
     <section id="viewContainer">
       <!-- Timeline View -->
@@ -158,17 +129,9 @@
         </section>
       </section>
 
-      <section id="bustExpandableBubbleView" class="card view-section" style="display: none;">
-        <h2>Character Interaction Bubble Chart</h2>
-        <svg id="bustBubble"></svg>
-        <div id="bustTooltip"></div>
-      </section>
-      <section id="bustBarChartView" class="card view-section" style="display: none;">
-        <h2>Character Interaction Bar Chart</h2>
-        <!-- <svg id="bustBarChart"></svg> -->
-        <div id="bustBarTooltip"></div>
-        <!-- Add the tile container here -->
-        <div id="tileContainer"></div>
+      <section id="episodeGridView" class="card view-section" style="display: none;">
+        <h2>Episode Explorer</h2>
+        <div id="episodeGridContainer"></div>
       </section>
 
     </main>

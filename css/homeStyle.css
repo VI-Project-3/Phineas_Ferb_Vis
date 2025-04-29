@@ -746,3 +746,340 @@ footer {
   display: block;
 }
 
+
+/* Episode Grid View */
+#episodeGridView {
+  padding: 20px;
+}
+
+.grid-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.grid-header button {
+  background: #3cbcc3;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 5px;
+}
+
+.episode-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.episode-tile {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.episode-tile:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.tile-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #3cbcc3;
+}
+
+.tile-year {
+  color: #666;
+  font-size: 0.9em;
+  margin-bottom: 5px;
+}
+
+.tile-genres {
+  font-size: 0.8em;
+  color: #888;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.year-filter {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.year-filter button {
+  background: none;
+  border: none;
+  color: #3cbcc3;
+  margin: 0 10px;
+  cursor: pointer;
+  font-size: 1.1em;
+}
+
+/* Episode Details Card */
+.episode-details-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 600px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  z-index: 10000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.episode-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #3cbcc3;
+  padding-bottom: 10px;
+}
+
+.episode-card-header h3 {
+  margin: 0;
+  color: #3cbcc3;
+  font-size: 1.5rem;
+}
+
+.close-card {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0 10px;
+}
+
+.episode-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.episode-section h4 {
+  margin-top: 0;
+  color: #3cbcc3;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.episode-image {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.bust-meter {
+  height: 30px;
+  background: #eee;
+  border-radius: 15px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bust-meter-fill {
+  height: 100%;
+  background: linear-gradient(to right, #f04a4a, #ff6b6b);
+  transition: width 0.5s ease;
+}
+
+.bust-meter span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Overlay */
+.episode-details-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 9999;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -45%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+/* Season Filter */
+.season-filter {
+  margin-bottom: 20px;
+}
+
+.season-filter label {
+  margin-right: 10px;
+  font-weight: bold;
+  color: #3cbcc3;
+}
+
+.season-filter select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #3cbcc3;
+  background-color: white;
+  font-family: 'Gloria Hallelujah', cursive;
+  cursor: pointer;
+}
+
+/* Episode Tile Updates */
+.tile-name {
+  font-size: 0.9em;
+  margin: 5px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tile-image-container {
+  height: 120px;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
+}
+
+.tile-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.episode-tile:hover .tile-image-container img {
+  transform: scale(1.1);
+}
+
+
+/* Controls */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-weight: bold;
+  color: #3cbcc3;
+}
+
+select, input, button {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-family: 'Gloria Hallelujah', cursive;
+}
+
+button {
+  background: #3cbcc3;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #2da8af;
+}
+
+/* Episode Tile */
+.episode-tile {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s;
+  position: relative;
+}
+
+.episode-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.episode-tile.favorite {
+  border: 2px solid #ffcc00;
+}
+
+.tile-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.favorite-star {
+  color: #ffcc00;
+  font-size: 1.2em;
+  cursor: pointer;
+}
+
+.favorite-star:hover {
+  transform: scale(1.2);
+}
+
+.tile-image-container {
+  height: 120px;
+  overflow: hidden;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.tile-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.episode-tile:hover .tile-image-container img {
+  transform: scale(1.1);
+}
+
+.tile-name {
+  font-weight: bold;
+  margin: 5px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tile-year, .tile-busts {
+  color: #666;
+  font-size: 0.9em;
+}

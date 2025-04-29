@@ -35,27 +35,12 @@ let currentCharacter = "all";
 let filterMajorOnly = false;
 let currentMetric = "words";
 let majorCharacters = new Set();
-// let bustAttemptsPerEpisode = {};
 
 
 Promise.all(filePaths.map(path => d3.csv(path))).then(all => {
   let transcripts = all.flat();
 
   transcripts.forEach(d => {
-    // if (d.speaker === "Candace" && d.line) {
-    //   const lowerLine = d.line.toLowerCase();
-  
-    //   if (lowerLine.includes("mom") || 
-    //       lowerLine.includes("phineas and ferb") || 
-    //       lowerLine.includes("come and see") ||
-    //       lowerLine.includes("look what they're doing")) {
-        
-    //     const epKey = `S${d.season}E${d.episode.toString().padStart(2, '0')}`;
-  
-    //     bustAttemptsPerEpisode[epKey] = (bustAttemptsPerEpisode[epKey] || 0) + 1;
-    //   }
-    // }
-
     d.season = parseInt(d.season);
     d.episode = parseInt(d.episode);
     if (isNaN(d.season) || isNaN(d.episode)) d._skip = true;
@@ -155,10 +140,6 @@ Promise.all(filePaths.map(path => d3.csv(path))).then(all => {
 
   populateDropdowns(transcripts);
   renderChart();
-
-  // ✅ Now that bustAttemptsPerEpisode is ready:
-  // initBustBubbleChart();
-  // initBustExpandableBubbleChart(); // ⭐ ADD THIS RIGHT HERE!
 });
 
 function populateDropdowns(transcripts) {
@@ -395,10 +376,6 @@ function renderChart() {
               Episode: ${d.episode.toString().padStart(2, '0')}<br>
               ${d[currentMetric] || 0} ${currentMetric}
             `);
-            // if(d.character === "Candace"){
-            //   const attempts = bustAttemptsPerEpisode[d.episodeIndex] || 0;
-            //   updateBustMeter(attempts);
-            // }
 
         })
         .on("mousemove", function (event) {
@@ -546,38 +523,22 @@ d3.select("#replayDuoBtn").on("click", () => {
 let textAnalysisInitialized = false;
 
 function switchView(view) {
-  const views = ['timelineView', 'textAnalysisView', 'bustExpandableBubbleView', 'bustBarChartView'];
+  const views = ['timelineView', 'textAnalysisView', 'episodeGridView'];
   views.forEach(id => {
     document.getElementById(id).style.display = (id === view + 'View') ? 'block' : 'none';
   });
 
-  // Initialize text analysis only once
   if (view === "textAnalysis" && !textAnalysisInitialized) {
     initTextAnalysis();
     textAnalysisInitialized = true;
   }
   if (view === "timeline") {
-    renderChart(); // Refresh timeline!
+    renderChart();
   }
-  // if (view === "bustExpandableBubble") {
-  //   initBustExpandableBubbleChart(); // Refresh bust bubble chart!
-  // }
-  if (view === "bustBarChart") {
-    initTileLayout(); // Refresh bust bar chart!
+  if (view === "episodeGrid") {
+    initEpisodeGridView();
   }
 }
-
-// initBustMeter(); // 🔥 Draw the initial bust meter
-// updateBustMeter(0); // start at 0%
-
-// function initBustBubbleChart() {
-//   const bustData = Object.entries(bustAttemptsPerEpisode).map(([episode, attempts]) => ({
-//     episode,
-//     attempts
-//   }));
-
-//   renderBustBubbleChart(bustData);
-// }
 
 document.addEventListener('DOMContentLoaded', () => {
   const bar = document.getElementById('overviewBar');

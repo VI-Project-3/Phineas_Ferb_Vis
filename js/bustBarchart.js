@@ -1,270 +1,352 @@
 // Store bust attempts data dynamically
 let bustAttemptsPerEpisode = {}; 
-let bustBubbleRootData = []; 
+let bustBubbleRootData = [];  // Add this line
 let phineasIdeasData = []; 
-let doofenshmirtzData = []; 
-
-// Initialize Tile Layout
-function initTileLayout() {
-  // Fetch actual CSV data
-  Promise.all([
-    d3.csv("data/inventions/pf/phineas_big_ideas_season1.csv"),
-    d3.csv("data/inventions/pf/phineas_big_ideas_season2.csv"),
-    d3.csv("data/inventions/pf/phineas_big_ideas_season3.csv"),
-    d3.csv("data/inventions/pf/phineas_big_ideas_season4.csv"),
-    d3.csv("data/inventions/doof/doofenshmirtz_season1.csv"),
-    d3.csv("data/inventions/doof/doofenshmirtz_season2.csv"),
-    d3.csv("data/inventions/doof/doofenshmirtz_season3.csv"),
-    d3.csv("data/inventions/doof/doofenshmirtz_season4.csv")
-  ])
-  .then(([phin1, phin2, phin3, phin4, doof1, doof2, doof3, doof4]) => {
-    phineasIdeasData = [...phin1, ...phin2, ...phin3, ...phin4];
-    doofenshmirtzData = [...doof1, ...doof2, ...doof3, ...doof4];
-
-    // Prepare the data structure for episodes with bust attempts and associated info
-    bustAttemptsPerEpisode = {};
-
-    phineasIdeasData.forEach(item => {
-      const episodeKey = `S${item.Season}E${item.EpisodeNumber}`;
-      bustAttemptsPerEpisode[episodeKey] = {
-        bustAttempts: Math.floor(Math.random() * 5),  // Example: Random bust attempts (replace with actual logic)
-        phineasBigIdea: item.BigIdea,
-        doofenshmirtzInvention: doofenshmirtzData.find(d => d.Season === item.Season && d.EpisodeNumber === item.EpisodeNumber)?.Inventions || "Unknown",
-        image: item.ImageURL
-      };
-    });
-
-    // Group the episodes by season
-    const seasonGroups = d3.group(Object.entries(bustAttemptsPerEpisode), ([epKey]) => epKey.slice(0, 2));
-
-    bustBubbleRootData = Array.from(seasonGroups, ([season, episodes]) => ({
-      id: season,
-      type: "season",
-      children: episodes.map(([epKey, attempts]) => ({
-        id: epKey,
-        type: "episode",
-        bustAttempts: attempts.bustAttempts,
-        phineasBigIdea: attempts.phineasBigIdea,
-        doofenshmirtzInvention: attempts.doofenshmirtzInvention,
-        image: attempts.image
-      }))
-    }));
-
-    drawTileLayout();  // Now draw the tiles with real data
-  })
-  .catch(error => {
-    console.log("Error loading data: ", error);
-  });
-}
-
-// function drawTileLayout() {
-//     const tileContainer = document.getElementById("tileContainer");
-
-//     if (!tileContainer) {
-//         console.error("#tileContainer not found");
-//         return; // Exit if the element doesn't exist
-//     }
-
-//     // Get the container width and height dynamically
-//     const containerWidth = tileContainer.offsetWidth;
-//     const containerHeight = tileContainer.offsetHeight;
-
-//     const tileWidth = 150;
-//     const tileHeight = 150;
-
-//     // Clear the existing tiles
-//     tileContainer.innerHTML = '';
-
-//     // Limit to 10 episodes per season
-//     const maxEpisodesPerSeason = 40;
-
-//     // Calculate the max number of episodes in any season (for yScale)
-//     const maxEpisodes = Math.min(
-//         Math.max(...bustBubbleRootData.map(season => season.children.length)),
-//         maxEpisodesPerSeason
-//     );
-
-//     // Set up scales for positioning the tiles
-//     const xScale = d3.scaleBand()
-//         .domain(["S1", "S2", "S3", "S4"])  // Season 1 to 4
-//         .range([0, containerWidth])  // Scale across container width
-//         .padding(0.15);  // Increased padding between the seasons (space between tiles horizontally)
-
-//     const yScale = d3.scaleBand()
-//         .domain(d3.range(1, maxEpisodes + 1))  // Scale episodes vertically (limit to 10 episodes max)
-//         .range([0, containerHeight - 40])  // Adjust the Y range to leave space for the X-axis at the bottom
-//         .padding(10);  // Increased padding between the episodes (space between tiles vertically)
-
-//     // Loop over the seasons and their episodes to create tiles
-//     bustBubbleRootData.forEach(season => {
-//         const seasonContainer = document.createElement('div');
-//         seasonContainer.classList.add('season-container');
-        
-
-//         // Create a container for each season to hold its episodes
-//         season.children.slice(0, maxEpisodesPerSeason).forEach(episode => {
-//             const tile = document.createElement('div');
-//             tile.classList.add('tile');
-//             tile.innerHTML = `
-//                 <div class="tile-title">Season ${episode.id.slice(1, 2)} - Episode ${episode.id.slice(3)}</div>
-//             `;
-
-            
-
-//             // Add a click event to the tile to open the sidebar
-//             tile.addEventListener('click', () => openSidebar(episode));
-
-//             seasonContainer.appendChild(tile);
-//         });
-//         // Inside drawTileLayout(), right after:
-// // const seasonContainer = document.createElement('div');
-// seasonContainer.style.display     = 'flex';
-// seasonContainer.style.flexWrap    = 'wrap';
-// seasonContainer.style.gap         = '16px';   // horizontal & vertical gap between tiles
-// seasonContainer.style.marginBottom= '24px';   // space between seasons
-
-
-//         // Append the season container to the tileContainer
-//         tileContainer.appendChild(seasonContainer);
-//     });
-// // … right after your tiles are appended and xScale is in scope …
-
-// // 1. Create a <svg> for the axis, absolutely positioned at the bottom
-// const axisSvg = d3.select('#tileContainer')
-//   .append('svg')
-//     .attr('width', containerWidth)
-//     .attr('height', 40)
-//     .style('position', 'absolute')
-//     .style('left', '0px')
-//     .style('bottom', '0px');
-
-// // 2. Add a bottom‐axis using the same xScale
-// axisSvg.append('g')
-//     .attr('transform', 'translate(0, 20)')   // push down to center it in the 40px tall svg
-//     .call(
-//       d3.axisBottom(xScale)
-//         .tickFormat((d, i) => `Season ${i + 1}`)
-//     );
-
+let doofenshmirtzData = [];
+// Function to show episode details in a card
+let showEpisodeDetails = (episode) => {
+    // Create overlay
+    const overlay = document.createElement("div");
+    overlay.className = "episode-details-overlay";
     
+    // Create card
+    const episodeDetails = document.createElement("div");
+    episodeDetails.className = "episode-details-card";
+    
+    const seasonNum = episode.id.slice(1, 2);
+    const episodeNum = episode.id.slice(3);
+    
+    episodeDetails.innerHTML = `
+      <div class="episode-card-header">
+        <h3>S${seasonNum}E${episodeNum}</h3>
+        <h3>${episode.name}</h3>
+        <button class="close-card">×</button>
+      </div>
+      
+      <div class="episode-card-content">
+        <div class="episode-section">
+          <h4>Phineas & Ferb's Big Idea</h4>
+          ${episode.image1 ? `<img src="${episode.image1}" class="episode-image">` : ''}
+          <p><strong>Big Idea: ${episode.phineasBigIdea || "No data available"}</strong></p>
+          <p><strong>Disappearance:</strong> ${episode.phineasBigIdeaDisappearance || "Unknown"}</p>
+          <p><strong>Notes:</strong> ${episode.phineasBigIdeaNotes || "No notes available"}</p>
+        </div>
+        
+        <div class="episode-section">
+          <h4>Doofenshmirtz's Scheme</h4>
+          ${episode.image2 ? `<img src="${episode.image2}" class="episode-image">` : ''}
+          <p><strong>Invention:</strong> ${episode.doofenshmirtzInvention || "Unknown"}</p>
+          <p><strong>Scheme:</strong> ${episode.doofenshmirtzInventionScheme || "Unknown"}</p>
+          <p><strong>Typical Failure:</strong> ${episode.doofenshmirtzInventionFailure || "Foiled by Perry the Platypus"}</p>
+          
+        </div>
+        
+        <div class="episode-section">
+          <h4>Candace's Bust Attempts</h4>
+          <div class="bust-meter">
+            <div class="bust-meter-fill" style="width: ${(episode.bustAttempts/5)*100}%"></div>
+            <span>${episode.bustAttempts} attempt${episode.bustAttempts !== 1 ? 's' : ''}</span>
+          </div>
+          <p class="bust-comment">${getBustComment(episode.bustAttempts)}</p>
+        </div>
+      </div>
+    `;
+  
+    // Add close functionality
+    const closeCard = () => {
+      document.body.removeChild(overlay);
+      document.body.removeChild(episodeDetails);
+    };
+  
+    episodeDetails.querySelector(".close-card").addEventListener("click", closeCard);
+    overlay.addEventListener("click", closeCard);
+  
+    // Add to DOM
+    document.body.appendChild(overlay);
+    document.body.appendChild(episodeDetails);
+  };
+  
+  // Helper function for bust attempt comments
+  function getBustComment(attempts) {
+    const comments = [
+      "Candace didn't even try this episode!",
+      "Candace made a half-hearted attempt.",
+      "Standard busting activity.",
+      "Candace was particularly determined!",
+      "Maximum busting intensity!",
+      "Candace went all out this episode!"
+    ];
+    return comments[Math.min(attempts, 5)];
+  }
+// Function to get the year for a given season
+let getYearForSeason = (season) => {
+  const yearMap = { 
+    "1": 2007,
+    "2": 2008,
+    "3": 2009,
+    "4": 2010
+  };
+  return yearMap[season] || "Unknown";
+};
 
-//     const xAxis = d3.axisBottom(xScale)
-//                     .tickFormat((d, i) => `Season ${i + 1}`);  // Display 'Season 1', 'Season 2', etc.
-
-//     svg.append('g')
-//        .attr('class', 'x-axis')
-//        .attr('transform', `translate(0, 20)`)  // Adjust vertical positioning slightly
-//        .call(xAxis);
-// }
-
-function drawTileLayout() {
-  const tileContainer = document.getElementById("tileContainer");
-  if (!tileContainer) {
-    console.error("#tileContainer not found");
-    return;
+function initEpisodeGridView() {
+    // Check if data is loaded
+    if (!bustBubbleRootData || bustBubbleRootData.length === 0) {
+      // If not, initialize the tile layout first
+      initTileLayout().then(() => {
+        // After data is loaded, draw the grid
+        drawEpisodeGridView();
+      });
+      return;
+    }
+    // If data is already loaded, draw the grid
+    drawEpisodeGridView();
   }
 
-  // === CONFIG ===
-  const seasons = bustBubbleRootData.map(d => d.id);  // ["S1","S2","S3","S4"]
-  const maxEps  = 5;                                // exactly 10 eps per column
-  const W       = tileContainer.clientWidth;
-  const H       = tileContainer.clientHeight;
-  const axisH   = 40;    // space for the x axis
 
-  // clear & set up flex container
-  tileContainer.innerHTML = "";
-  tileContainer.style.display        = "flex";
-  tileContainer.style.justifyContent = "space-between";
-  tileContainer.style.alignItems     = "flex-start";
-  tileContainer.style.position       = "relative";  
-
-  // compute each column width
-  const colW = W / seasons.length;
-
-  // build one column per season
-  bustBubbleRootData.forEach(season => {
-    const col = document.createElement("div");
-    col.style.display        = "flex";
-    col.style.flexDirection  = "column";
-    col.style.alignItems     = "center";
-    col.style.gap            = "8px";
-    col.style.width          = `${colW}px`;
-    col.style.minHeight      = `${H - axisH}px`;
-    col.style.boxSizing      = "border-box";
-
-    // add up to maxEps tiles
-    season.children.slice(0, maxEps).forEach(ep => {
-      const episodeNum = parseInt(ep.id.slice(3), 10);
-      const tile = document.createElement("div");
-      tile.classList.add("tile");
-      tile.style.width       = `${colW * 0.8}px`;
-      tile.style.cursor      = "pointer";
-      tile.innerHTML = `
-        <div class="tile-title">
-          Season ${season.id.slice(1)} – Episode ${episodeNum}
+function drawEpisodeGridView() {
+    // Clear existing content
+    const container = document.getElementById("episodeGridView");
+    container.innerHTML = "";
+  
+    // Create control panel
+    container.innerHTML = `
+      <div class="controls">
+        <div class="filter-group">
+          <label>Season:</label>
+          <select id="seasonelect">
+            <option value="all">All Seasons</option>
+            <option value="S1">Season 1</option>
+            <option value="S2">Season 2</option>
+            <option value="S3">Season 3</option>
+            <option value="S4">Season 4</option>
+          </select>
         </div>
-      `;
-      tile.addEventListener("click", () => openSidebar(ep));
-      col.appendChild(tile);
+        
+        <div class="filter-group">
+          <label>Year:</label>
+          <select id="yearSelect">
+            <option value="all">All Years</option>
+            <option value="2007">2007</option>
+            <option value="2008">2008</option>
+            <option value="2009">2009</option>
+            <option value="2010">2010</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Sort:</label>
+          <select id="sortSelect">
+            <option value="default">Default</option>
+            <option value="name-asc">Name (A-Z)</option>
+            <option value="name-desc">Name (Z-A)</option>
+            <option value="year-asc">Year (Oldest)</option>
+            <option value="year-desc">Year (Newest)</option>
+            <option value="bust-asc">Bust Attempts (Low)</option>
+            <option value="bust-desc">Bust Attempts (High)</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <button id="toggleFavorites">Show Favorites Only</button>
+        </div>
+        
+        <div class="filter-group">
+          <input type="text" id="searchInput" placeholder="Search episodes...">
+        </div>
+      </div>
+      
+      <div id="episodeGrid" class="episode-grid"></div>
+    `;
+  
+    // Get DOM elements
+    const grid = document.getElementById("episodeGrid");
+    const seasonelect = document.getElementById("seasonelect");
+    const yearSelect = document.getElementById("yearSelect");
+    const sortSelect = document.getElementById("sortSelect");
+    const toggleFavorites = document.getElementById("toggleFavorites");
+    const searchInput = document.getElementById("searchInput");
+  
+    // Track favorites
+    let showFavoritesOnly = false;
+    const favorites = JSON.parse(localStorage.getItem('phineasFavorites')) || {};
+  
+    // Function to render episodes with all filters applied
+    const renderEpisodes = () => {
+      // Get current filter values
+      const seasonFilter = seasonelect.value;
+      const yearFilter = yearSelect.value;
+      const searchQuery = searchInput.value.toLowerCase();
+      const sortValue = sortSelect.value;
+      
+      // Flatten all episodes
+      let episodes = [];
+      bustBubbleRootData.forEach(season => {
+        season.children.forEach(episode => {
+          episodes.push({
+            ...episode,
+            seasonId: season.id,
+            year: getYearForSeason(episode.id.slice(1, 2)),
+            isFavorite: !!favorites[episode.id]
+          });
+        });
+      });
+      
+      // Apply filters
+      let filteredEpisodes = episodes.filter(episode => {
+        // Season filter
+        if (seasonFilter !== 'all' && episode.seasonId !== seasonFilter) return false;
+        
+        // Year filter
+        if (yearFilter !== 'all' && episode.year !== yearFilter) return false;
+        
+        // Favorite filter
+        if (showFavoritesOnly && !episode.isFavorite) return false;
+        
+        // Search filter
+        if (searchQuery && 
+            !episode.name.toLowerCase().includes(searchQuery) && 
+            !episode.phineasBigIdea.toLowerCase().includes(searchQuery) &&
+            !episode.doofenshmirtzInvention.toLowerCase().includes(searchQuery)) {
+          return false;
+        }
+        
+        return true;
+      });
+      
+      // Apply sorting
+      filteredEpisodes.sort((a, b) => {
+        switch(sortValue) {
+          case 'name-asc': return a.name.localeCompare(b.name);
+          case 'name-desc': return b.name.localeCompare(a.name);
+          case 'year-asc': return a.year - b.year;
+          case 'year-desc': return b.year - a.year;
+          case 'bust-asc': return a.bustAttempts - b.bustAttempts;
+          case 'bust-desc': return b.bustAttempts - a.bustAttempts;
+          default: return 0; // Default order
+        }
+      });
+      
+      // Render episodes
+      grid.innerHTML = '';
+      filteredEpisodes.forEach(episode => {
+        const tile = document.createElement('div');
+        tile.className = `episode-tile ${episode.isFavorite ? 'favorite' : ''}`;
+        tile.innerHTML = `
+          <div class="tile-header">
+            <span class="favorite-star" data-id="${episode.id}">${episode.isFavorite ? '★' : '☆'}</span>
+            <span class="tile-title">${episode.id}</span>
+          </div>
+          <div class="tile-image-container">
+            <img src="${episode.image1}" 
+                 alt="${episode.name}"
+                 onerror="this.onerror=null;this.src='images/default-thumb.jpg';">
+          </div>
+          <div class="tile-name">${episode.name}</div>
+          <div class="tile-year">${episode.year}</div>
+          <div class="tile-busts">Busts: ${episode.bustAttempts}</div>
+        `;
+        
+        // Add click handlers
+        tile.addEventListener('click', () => showEpisodeDetails(episode));
+        tile.querySelector('.favorite-star').addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleFavorite(episode.id);
+        });
+        
+        grid.appendChild(tile);
+      });
+    };
+  
+    // Toggle favorite status
+    const toggleFavorite = (episodeId) => {
+      favorites[episodeId] = !favorites[episodeId];
+      localStorage.setItem('phineasFavorites', JSON.stringify(favorites));
+      renderEpisodes();
+    };
+  
+    // Toggle favorites filter
+    toggleFavorites.addEventListener('click', () => {
+      showFavoritesOnly = !showFavoritesOnly;
+      toggleFavorites.textContent = showFavoritesOnly ? 
+        'Show All Episodes' : 'Show Favorites Only';
+      renderEpisodes();
     });
+  
+    // Add event listeners for all filters
+    seasonelect.addEventListener('change', renderEpisodes);
+    yearSelect.addEventListener('change', renderEpisodes);
+    sortSelect.addEventListener('change', renderEpisodes);
+    searchInput.addEventListener('input', renderEpisodes);
+  
+    // Initial render
+    renderEpisodes();
+  }
 
-    tileContainer.appendChild(col);
-  });
+  // Modify initTileLayout to return a Promise
+  function initTileLayout() {
+    return new Promise((resolve, reject) => {
+      Promise.all([
+        d3.csv("data/inventions/pf/phineas_big_ideas_season1.csv"),
+        d3.csv("data/inventions/pf/phineas_big_ideas_season2.csv"),
+        d3.csv("data/inventions/pf/phineas_big_ideas_season3.csv"),
+        d3.csv("data/inventions/pf/phineas_big_ideas_season4.csv"),
+        d3.csv("data/inventions/doof/doofenshmirtz_season1.csv"),
+        d3.csv("data/inventions/doof/doofenshmirtz_season2.csv"),
+        d3.csv("data/inventions/doof/doofenshmirtz_season3.csv"),
+        d3.csv("data/inventions/doof/doofenshmirtz_season4.csv")
+      ])
+      .then(([phin1, phin2, phin3, phin4, doof1, doof2, doof3, doof4]) => {
+        phineasIdeasData = [...phin1, ...phin2, ...phin3, ...phin4];
+        doofenshmirtzData = [...doof1, ...doof2, ...doof3, ...doof4];
+  
+        // Prepare the data structure
+        bustAttemptsPerEpisode = {};
+  
+        phineasIdeasData.forEach(item => {
+          const episodeKey = `S${item.Season}E${item.EpisodeNumber}`;
+          bustAttemptsPerEpisode[episodeKey] = {
+            bustAttempts: Math.floor(Math.random() * 5),
+            episodeName: item.Episode,
+            phineasBigIdea: item.BigIdea,
+            phineasBigIdeaDisappearance: item.Disappearance,
+            phineasBigIdeaNotes: item.Notes,
+            doofenshmirtzInvention: doofenshmirtzData.find(d => d.Season === item.Season && d.EpisodeNumber === item.EpisodeNumber)?.Inventions || "Unknown",
+            doofenshmirtzInventionScheme: doofenshmirtzData.find(d => d.Season === item.Season && d.EpisodeNumber === item.EpisodeNumber)?.Scheme || "Unknown",
+            doofenshmirtzInventionFailure: doofenshmirtzData.find(d => d.Season === item.Season && d.EpisodeNumber === item.EpisodeNumber)?.Failure || "Unknown",
+            image1: `images/pf/Season${item.Season}/${item.EpisodeNumber}.webp`, // Standardized image path
+            image2: `images/doof/Season${item.Season}/${item.EpisodeNumber}.webp` // Standardized image path
 
-  // === X-AXIS ===
-  const xScale = d3.scaleBand()
-    .domain(seasons)
-    .range([colW/2, W - colW/2])
-    .padding(0);
-
-  const axisSvg = d3.select(tileContainer)
-    .append("svg")
-      .attr("width",  W)
-      .attr("height", axisH)
-      .style("position", "absolute")
-      .style("left",     "0px")
-      .style("bottom",   "0px");
-
-  axisSvg.append("g")
-    .attr("transform", `translate(0, ${axisH/2})`)
-    .call(
-      d3.axisBottom(xScale)
-        .tickFormat((d,i) => `Season ${i+1}`)
-    );
-}
-
-
-// Open the Sidebar with Episode Details
-function openSidebar(episode) {
-  const sidebar = document.getElementById("episodeSidebar");
-
-  const seasonNumber = episode.id.slice(1, 2);
-  const episodeNumber = episode.id.slice(3);
-
-  document.getElementById("sidebarTitle").innerText = `Season ${seasonNumber} - Episode ${episodeNumber}`;
-  document.getElementById("sidebarBustAttempts").innerHTML = `<strong>Candace Bust Attempts:</strong> ${episode.bustAttempts}`;
-
-  // Find matching Phineas Big Idea
-  const phinIdea = phineasIdeasData.find(item => 
-    item.Season === seasonNumber && item.EpisodeNumber === episodeNumber
-  ) || {};
-
-  document.getElementById("sidebarPhineasIdea").innerHTML = `<strong>Big Idea:</strong> ${phinIdea.BigIdea || "Unknown"}`;
-  document.getElementById("sidebarPhineasDisappearance").innerHTML = `<strong>Disappearance:</strong> ${phinIdea.Disappearance || "Unknown"}`;
-  document.getElementById("sidebarPhineasNotes").innerHTML = `<strong>Notes:</strong> ${phinIdea.Notes || "Unknown"}`;
-
-  // Find matching Doofenshmirtz Invention
-  const doofIdea = doofenshmirtzData.find(item => 
-    item.Season === seasonNumber && item.EpisodeNumber === episodeNumber
-  ) || {};
-
-  document.getElementById("sidebarDoofInvention").innerHTML = `<strong>Invention:</strong> ${doofIdea.Inventions || "Unknown"}`;
-  document.getElementById("sidebarDoofScheme").innerHTML = `<strong>Scheme:</strong> ${doofIdea.Scheme || "Unknown"}`;
-  document.getElementById("sidebarDoofFailure").innerHTML = `<strong>Failure/Destruction:</strong> ${doofIdea.Failure || "Unknown"}`;
-
-  // Show the sidebar
-  sidebar.classList.add("active");
-}
-
-// Run the initialization when the page is ready
-document.addEventListener("DOMContentLoaded", initTileLayout);
+          };
+        });
+  
+        // Group the episodes by season
+        const seasonGroups = d3.group(Object.entries(bustAttemptsPerEpisode), ([epKey]) => epKey.slice(0, 2));
+  
+        bustBubbleRootData = Array.from(seasonGroups, ([season, episodes]) => ({
+          id: season,
+          type: "season",
+          children: episodes.map(([epKey, attempts]) => ({
+            id: epKey,
+            type: "episode",
+            name: attempts.episodeName,
+            bustAttempts: attempts.bustAttempts,
+            phineasBigIdea: attempts.phineasBigIdea,
+            phineasBigIdeaDisappearance: attempts.phineasBigIdeaDisappearance,
+            phineasBigIdeaNotes: attempts.phineasBigIdeaNotes,
+            doofenshmirtzInvention: attempts.doofenshmirtzInvention,
+            doofenshmirtzInventionScheme: attempts.doofenshmirtzInventionScheme,
+            doofenshmirtzInventionFailure: attempts.doofenshmirtzInventionFailure,
+            image1: attempts.image1,
+            image2: attempts.image2
+          }))
+        }));
+  
+        resolve(); // Resolve the promise when data is ready
+        })
+      .catch(error => {
+        console.log("Error loading data: ", error);
+        reject(error);
+      });
+    });
+  }
