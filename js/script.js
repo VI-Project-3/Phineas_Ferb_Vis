@@ -19,8 +19,11 @@ const characterColors = {
   default: "#4B8DF8"
 };
 
-const svg = d3.select("#timelineChart");
-const margin = { top: 50, right: 30, bottom: 60, left: 150 };
+
+const svg = d3.select("#timelineChart")
+  .attr("width", 1200)  // Increased width
+  .attr("height", 750); // Increased height
+const margin = { top: 50, right: 30, bottom: 100, left: 150 };  // Increased bottom margin for better axis labels
 const width = +svg.attr("width") - margin.left - margin.right;
 const height = +svg.attr("height") - margin.top - margin.bottom;
 const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
@@ -327,16 +330,20 @@ function renderChart() {
 
   // X Axis
   g.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(x).tickFormat(d => d))
-    .selectAll("text")
-    .style("text-anchor", "end")
-    .attr("dx", "-0.8em")
-    .attr("dy", "0.15em")
-    .attr("transform", "rotate(-45)");
+  .attr("transform", `translate(0,${height})`)
+  .call(d3.axisBottom(x).tickFormat(d => d))
+  .selectAll("text")
+  .style("text-anchor", "end")
+  .style("font-size", "12px") // Larger font
+  .attr("dx", "-0.8em")
+  .attr("dy", "0.15em")
+  .attr("transform", "rotate(-45)");
 
-  // Y Axis
-  g.append("g").call(d3.axisLeft(y));
+  // Y Axis - make text larger
+  g.append("g")
+  .call(d3.axisLeft(y))
+  .selectAll("text")
+  .style("font-size", "12px"); // Larger font
 
   // Background season bands
   seasonGroups.forEach(([season, eps], i) => {
@@ -353,15 +360,16 @@ function renderChart() {
       .lower();
   });
 
-  // Season labels
+
   seasonGroups.forEach(([season, eps]) => {
     const xMid = (x(eps[0]) + x(eps[eps.length - 1])) / 2;
     g.append("text")
       .attr("x", xMid)
-      .attr("y", height + 50)
+      .attr("y", height + 80) 
       .attr("text-anchor", "middle")
-      .style("font-size", "12px")
+      .style("font-size", "14px") // Larger font
       .style("font-weight", "bold")
+      .style("fill", "black")
       .text(season);
   });
 
@@ -378,7 +386,9 @@ function renderChart() {
         .on("mouseover", function (event, d) {
           d3.selectAll("circle").transition().duration(200).style("opacity", 0.3);
           d3.select(this).transition().duration(200)
-            .attr("r", d => currentMetric === "lines" ? Math.sqrt(d[currentMetric]) * 1.4 : Math.sqrt(d[currentMetric]) * 0.5)
+            .attr("r", d => currentMetric === "lines" ? 
+              Math.sqrt(d[currentMetric]) * 2 :  // Larger multiplier for lines
+              Math.sqrt(d[currentMetric]) * 0.8) // Larger multiplier for words
             .attr("stroke", "grey")
             .attr("stroke-width", 2)
             .style("opacity", 0.8);
@@ -400,53 +410,22 @@ function renderChart() {
         .on("mouseout", function () {
           d3.selectAll("circle").transition().duration(200).style("opacity", 0.8);
           d3.select(this).transition().duration(200)
-            .attr("r", d => currentMetric === "lines" ? Math.sqrt(d[currentMetric]) * 1.4 : Math.sqrt(d[currentMetric]) * 0.5)
+            .attr("r", d => currentMetric === "lines" ? 
+              Math.sqrt(d[currentMetric]) * 2 :  // Larger multiplier for lines
+              Math.sqrt(d[currentMetric]) * 0.8) // Larger multiplier for words
             .attr("stroke", "none");
           d3.select("#tooltip").style("display", "none");
         })
         .transition()
         .duration(600)
-        .attr("r", d => currentMetric === "lines" ? Math.sqrt(d[currentMetric]) * 1.4 : Math.sqrt(d[currentMetric]) * 0.5),
+        .attr("r", d => currentMetric === "lines" ? 
+          Math.sqrt(d[currentMetric]) * 2 :  // Larger multiplier for lines
+          Math.sqrt(d[currentMetric]) * 0.8), // Larger multiplier for words
       
       update => update,
       exit => exit.transition().duration(400).attr("r", 0).remove()
     );
 }
-
-
-// Replay button
-// d3.select("#replayBtn").on("click", () => {
-//   let index = 0;
-//   const sortedDots = dotData
-//     .filter(d => (currentSeason === "all" || d.season === +currentSeason) &&
-//                  (currentCharacter === "all" || d.character === currentCharacter) &&
-//                  (!filterMajorOnly || majorCharacters.has(d.character)))
-//     .sort((a, b) => {
-//       const sa = +a.season, sb = +b.season;
-//       const ea = +a.episode, eb = +b.episode;
-//       return sa - sb || ea - eb;
-//     });
-
-//   const visibleCircles = d3.selectAll("circle").attr("opacity", 0.05);
-
-//   const interval = setInterval(() => {
-//     if (index >= sortedDots.length) {
-//       clearInterval(interval);
-//       return;
-//     }
-
-//     const d = sortedDots[index];
-//     d3.selectAll("circle")
-//       .filter(cd => cd.character === d.character && cd.episodeIndex === d.episodeIndex)
-//       .transition().duration(300)
-//       .attr("opacity", 1)
-//       .attr("r", Math.sqrt(d[currentMetric]) * 0.6);
-
-//     index++;
-//   }, 80);
-// });
-
-
 
 d3.select("#replayBtn").on("click", () => {
   // Reset everything
@@ -465,9 +444,8 @@ d3.select("#replayBtn").on("click", () => {
   d3.select("#characterSearch").property("value", ""); // Clear search input
 
   renderChart(); // 🎯 Re-render fresh
+  switchView('timeline');
 
-  d3.select("#characterSelect").property("value", "Phineas");
-  updateVisuals(); // 🎯 Update word cloud
 });
 
 
