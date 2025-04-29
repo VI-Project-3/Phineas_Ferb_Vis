@@ -6,6 +6,10 @@
   <link rel="stylesheet" href="css/homeStyle.css">
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap" rel="stylesheet">
+   <!-- Choices.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <!-- Choices.js JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 </head>
 <body>
   <a href="index.html" id="homeButton">🏠 Home</a>
@@ -77,6 +81,11 @@
         </button>   
       </div>
       <div class="button-group">
+        <button onclick="switchView('network')" class="data-btn">
+          🕸️ Character Interaction Matrix
+        </button>   
+      </div>     
+      <div class="button-group">
         <button onclick="switchView('episodeGrid')" class="data-btn">
           🎬 Episode Explorer
         </button>   
@@ -147,6 +156,42 @@
         </section>
       </section>
 
+       <!-- Character Interaction Network View -->
+      <section id="networkView" class="card view-section" style="display: none;">
+        <h2>Character Interaction Network</h2>
+        <div id="interactionControls" style="margin-bottom: 1rem;">
+        <label for="networkSeasonSelect">Select Season:</label>
+          <select id="networkSeasonSelect">
+            <option value="all">All Seasons</option>
+            <option value="1">Season 1</option>
+            <option value="2">Season 2</option>
+            <option value="3">Season 3</option>
+            <option value="4">Season 4</option>
+          </select>
+          <label style="margin-left: 1rem;">
+            <input type="checkbox" id="showMajorOnlyNetwork"> Major Characters Only
+          </label>
+          <span style="margin-left: 1rem;"> Theme:
+            <button class="theme-btn blue" onclick="changeColorTheme('blue')">🔵</button>
+            <button class="theme-btn green" onclick="changeColorTheme('green')">🟢</button>
+            <button class="theme-btn red" onclick="changeColorTheme('red')">🔴</button>
+          </span>
+          <label for="characterMultiSelect"><br>Select Characters:</label>
+          <select id="characterMultiSelect" multiple></select>
+        </div>
+        <!-- Updated layout: matrix and panel side-by-side -->
+         <div id="interactionWrapper" style="display: flex; align-items: flex-start; gap: 30px; margin-top: 20px;">
+          <!-- Left: Matrix container -->
+          <div id="interactionNetwork" style="flex: 1; position: relative;"></div>
+          <!-- Right: Detail Panel -->
+           <div id="interactionDetail" style="width: 300px; min-height: 400px; background: #fafafa; border: 1px solid #ccc; border-radius: 8px; padding: 10px; box-shadow: 0px 2px 10px rgba(0,0,0,0.1); font-size: 12px;">
+            <div style="color: #888; text-align: center; margin-top: 20px;">Click on a tile to see details</div>
+          </div>
+        </div>
+        <!-- Tooltip for hover -->
+        <div id="matrixTooltip" style="position: absolute; display: none; background: #333; color: #fff; padding: 6px 10px; border-radius: 5px; font-size: 12px; pointer-events: none; z-index: 9999;"></div>
+      </section>
+
       <section id="episodeGridView" class="card view-section" style="display: none;">
         <h2>Episode Explorer</h2>
         <div id="episodeGridContainer"></div>
@@ -181,6 +226,7 @@
     <p>🛠️ Created For VI Project 3</p>
   </footer>
 
+  <script src="js/interactionNetwork.js"></script>
   <script src="js/bustBarChart.js"></script>
   <script src="js/script.js"></script>
   
@@ -190,6 +236,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
 <script src="js/textanalysis.js"></script>
+
 
 
 
