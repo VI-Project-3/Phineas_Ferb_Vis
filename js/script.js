@@ -35,12 +35,26 @@ let currentCharacter = "all";
 let filterMajorOnly = false;
 let currentMetric = "words";
 let majorCharacters = new Set();
-
+let bustAttemptsPerEpisod = {};
 
 Promise.all(filePaths.map(path => d3.csv(path))).then(all => {
   let transcripts = all.flat();
 
   transcripts.forEach(d => {
+    if (d.speaker === "Candace" && d.line) {
+       const lowerLine = d.line.toLowerCase();
+ 
+       if (lowerLine.includes("mom") || 
+           lowerLine.includes("phineas and ferb") || 
+           lowerLine.includes("come and see") ||
+           lowerLine.includes("look what they're doing")) {
+ 
+         const epKey = `S${d.season}E${d.episode.toString().padStart(2, '0')}`;
+ 
+         bustAttemptsPerEpisod[epKey] = (bustAttemptsPerEpisod[epKey] || 0) + 1;
+       }
+     }
+    
     d.season = parseInt(d.season);
     d.episode = parseInt(d.episode);
     if (isNaN(d.season) || isNaN(d.episode)) d._skip = true;

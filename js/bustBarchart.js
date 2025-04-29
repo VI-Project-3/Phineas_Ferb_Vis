@@ -1,6 +1,6 @@
 // Store bust attempts data dynamically
 let bustAttemptsPerEpisode = {}; 
-let bustBubbleRootData = [];  // Add this line
+let bustBubbleRootData = [];  
 let phineasIdeasData = []; 
 let doofenshmirtzData = [];
 // Function to show episode details in a card
@@ -44,7 +44,7 @@ let showEpisodeDetails = (episode) => {
         <div class="episode-section">
           <h4>Candace's Bust Attempts</h4>
           <div class="bust-meter">
-            <div class="bust-meter-fill" style="width: ${(episode.bustAttempts/5)*100}%"></div>
+            <div class="bust-meter-fill" style="width: ${(episode.bustAttempts/16)*100}%"></div>
             <span>${episode.bustAttempts} attempt${episode.bustAttempts !== 1 ? 's' : ''}</span>
           </div>
           <p class="bust-comment">${getBustComment(episode.bustAttempts)}</p>
@@ -52,7 +52,7 @@ let showEpisodeDetails = (episode) => {
       </div>
     `;
   
-    // Add close functionality
+    //close functionality
     const closeCard = () => {
       document.body.removeChild(overlay);
       document.body.removeChild(episodeDetails);
@@ -61,12 +61,24 @@ let showEpisodeDetails = (episode) => {
     episodeDetails.querySelector(".close-card").addEventListener("click", closeCard);
     overlay.addEventListener("click", closeCard);
   
-    // Add to DOM
+   
     document.body.appendChild(overlay);
     document.body.appendChild(episodeDetails);
   };
   
   // Helper function for bust attempt comments
+  // function getBustComment(attempts) {
+  //   const comments = [
+  //     "Candace didn't even try this episode!",
+  //     "Candace made a half-hearted attempt.",
+  //     "Standard busting activity.",
+  //     "Candace was particularly determined!",
+  //     "Maximum busting intensity!",
+  //     "Candace went all out this episode!"
+  //   ];
+  //   return comments[Math.min(attempts, 5)];
+  // }
+
   function getBustComment(attempts) {
     const comments = [
       "Candace didn't even try this episode!",
@@ -76,8 +88,25 @@ let showEpisodeDetails = (episode) => {
       "Maximum busting intensity!",
       "Candace went all out this episode!"
     ];
-    return comments[Math.min(attempts, 5)];
+  
+    // Dynamically provide a more detailed comment based on bust attempts
+    if (attempts === 0) {
+      return comments[0]; // No attempts
+    } else if (attempts <= 2) {
+      return comments[1]; // One attempt
+    } else if (attempts <= 3) {
+      return comments[2]; // Some attempts
+    } else if (attempts <= 4) {
+      return comments[3]; // Above average busting
+    } else if (attempts <= 6) {
+      return comments[4]; // High intensity busting
+    } else if (attempts >= 7) {
+      return comments[5]; // Maximum effort, Candace is really trying!
+    }
+  
+    return "Candace made multiple attempts, but couldn't get her brother!";
   }
+  
 // Function to get the year for a given season
 let getYearForSeason = (season) => {
   const yearMap = { 
@@ -247,7 +276,6 @@ function drawEpisodeGridView() {
           <div class="tile-busts">Busts: ${episode.bustAttempts}</div>
         `;
         
-        // Add click handlers
         tile.addEventListener('click', () => showEpisodeDetails(episode));
         tile.querySelector('.favorite-star').addEventListener('click', (e) => {
           e.stopPropagation();
@@ -273,7 +301,6 @@ function drawEpisodeGridView() {
       renderEpisodes();
     });
   
-    // Add event listeners for all filters
     seasonelect.addEventListener('change', renderEpisodes);
     yearSelect.addEventListener('change', renderEpisodes);
     sortSelect.addEventListener('change', renderEpisodes);
@@ -294,7 +321,7 @@ function drawEpisodeGridView() {
         d3.csv("data/inventions/doof/doofenshmirtz_season1.csv"),
         d3.csv("data/inventions/doof/doofenshmirtz_season2.csv"),
         d3.csv("data/inventions/doof/doofenshmirtz_season3.csv"),
-        d3.csv("data/inventions/doof/doofenshmirtz_season4.csv")
+        d3.csv("data/inventions/doof/doofenshmirtz_season4.csv"),
       ])
       .then(([phin1, phin2, phin3, phin4, doof1, doof2, doof3, doof4]) => {
         phineasIdeasData = [...phin1, ...phin2, ...phin3, ...phin4];
@@ -302,11 +329,14 @@ function drawEpisodeGridView() {
   
         // Prepare the data structure
         bustAttemptsPerEpisode = {};
+
+        
   
         phineasIdeasData.forEach(item => {
           const episodeKey = `S${item.Season}E${item.EpisodeNumber}`;
+          const epKey = `S${item.Season}E${item.EpisodeNumber.toString().padStart(2, '0')}`;
           bustAttemptsPerEpisode[episodeKey] = {
-            bustAttempts: Math.floor(Math.random() * 5),
+            bustAttempts: bustAttemptsPerEpisod[epKey] || 0,  // Math.floor(Math.random() * 5),
             episodeName: item.Episode,
             phineasBigIdea: item.BigIdea,
             phineasBigIdeaDisappearance: item.Disappearance,
