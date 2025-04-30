@@ -1457,3 +1457,11 @@ button:hover {
   background-color: #911eb4; /* Purple for Season 4 */
   color: white;
 }
+
+.choices {
+  width: 30%;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 24px;
+  font-size: 16px;
+}

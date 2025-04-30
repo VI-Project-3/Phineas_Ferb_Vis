@@ -38,7 +38,7 @@ const STATIC_MAJOR_CHARACTERS = new Set([
   "stacy",
   "jeremy",
   "vanessa",
-  "monogram",
+  "major monogram",
   "carl"
 ]);
 
@@ -57,13 +57,13 @@ async function loadNetworkData() {
     .map(d => ({
       season: +d.season,
       episode: +d.episode,
-      speaker: d.speaker?.replace(/\(.*?\)/g, "").trim().toLowerCase()
+      speaker: d.speaker?.replace(/\(.*?\)/g, "").trim().toLowerCase(),
     }))
     .filter(d => 
       d.season && 
       d.episode && 
       d.speaker && 
-      !BAD_SPEAKERS.has(d.speaker) // Important: filter here
+      !BAD_SPEAKERS.has(d.speaker)
     );
 
   d3.select("#networkSeasonSelect").on("change", () => { populateCharacterMultiSelect(); renderNetwork(); });
@@ -86,17 +86,41 @@ function populateCharacterMultiSelect() {
     filteredLines = allNetworkLines.filter(d => d.season == +selectedSeason);
   }
 
-  let characters = Array.from(new Set(filteredLines.map(d => d.speaker))).sort();
-  if (majorOnly) characters = characters.filter(c => STATIC_MAJOR_CHARACTERS.has(c.toLowerCase()));
+  // Calculate character stats
+  const charEpisodeCount = d3.rollups(
+    filteredLines,
+    v => new Set(v.map(d => `${d.season}-${d.episode}`)).size,
+    d => d.speaker
+  );
 
+  // Get all unique characters
+  let characters = Array.from(new Set(filteredLines.map(d => d.speaker)));
 
+  // Apply filters with more lenient thresholds
+  characters = characters.filter(c => {
+    const episodeCount = charEpisodeCount.find(([char]) => char === c)?.[1] || 0;
+    
+    // Relaxed thresholds - you can adjust these
+    const meetsCriteria = episodeCount >= 3;
+    return meetsCriteria;
+  }).sort();
+
+  if (majorOnly) {
+    characters = characters.filter(c => STATIC_MAJOR_CHARACTERS.has(c.toLowerCase()));
+  }
 
   const select = d3.select("#characterMultiSelect");
   select.selectAll("option").remove();
 
-  characters.forEach(c => {
-    select.append("option").attr("value", c).text(capitalize(c));
-  });
+  if (characters.length === 0) {
+    select.append("option")
+      .attr("value", "")
+      .text("No characters available - adjust filters");
+  } else {
+    characters.forEach(c => {
+      select.append("option").attr("value", c).text(capitalize(c));
+    });
+  }
 
   if (characterChoices) characterChoices.destroy();
 
@@ -104,7 +128,9 @@ function populateCharacterMultiSelect() {
     removeItemButton: true,
     shouldSort: false,
     placeholder: true,
-    placeholderValue: `${characters.length} characters available`,
+    placeholderValue: characters.length > 0 ? 
+      `${characters.length} characters available` : 
+      "No characters available",
     searchEnabled: true,
     searchPlaceholderValue: "Type to search character..."
   });
